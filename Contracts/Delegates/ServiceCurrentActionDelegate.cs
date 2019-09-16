@@ -1,0 +1,7 @@
+using System;
+using Contracts.Models;
+
+namespace Contracts.Delegates
+{
+    public delegate void ServiceCurrentActionDelegate(ActionModel action);
+}
