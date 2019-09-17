@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Callbacks.cs" />
+    <Compile Include="CallbacksApi.cs" />
     <Compile Include="ClientSetup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

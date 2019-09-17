@@ -24,7 +24,7 @@ namespace Service
         /// </summary>
         public bool IsOpened { get; protected set; } = false;
 
-        public Operations ServiceOperations { get; }
+        public IServiceOperationsApi OperationsApi { get; }
 
         /// <summary>
         /// Default constructor. Initiates the named pipes configuration and service host instance
@@ -40,8 +40,8 @@ namespace Service
                 ReceiveTimeout = new TimeSpan(0, 0, 10),
                 SendTimeout = new TimeSpan(0, 0, 5)
             };
-            
-            ServiceOperations = new Operations();
+
+            OperationsApi = ServiceOperationsApi.Instance;
 
             _serviceHost = _initalizeServiceHost();
         }
@@ -52,8 +52,8 @@ namespace Service
         /// <returns>Returns the service host instance</returns>
         private ServiceHost _initalizeServiceHost()
         {
-            var serviceHost = new ServiceHost(ServiceOperations, new Uri("net.pipe://localhost"));
-            serviceHost.AddServiceEndpoint(typeof(IOperations), _netNamedPipeBinding, "WCFBasis");
+            var serviceHost = new ServiceHost(OperationsApi, new Uri("net.pipe://localhost"));
+            serviceHost.AddServiceEndpoint(typeof(IServiceOperationsApi), _netNamedPipeBinding, "WCFBasis");
             serviceHost.Faulted += _onHostFailure;
             serviceHost.Opened += _onHostOpened;
             

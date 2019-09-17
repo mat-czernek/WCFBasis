@@ -39,8 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Delegates\EmitSimpleMessageDelegate.cs" />
-    <Compile Include="Operations.cs" />
+    <Compile Include="ServiceOperationsApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Host.cs" />
     <Compile Include="Services\ProcessActions.cs" />
@@ -50,6 +49,9 @@
       <Project>{5b2cc574-fa6c-4842-9c48-8d1492eedbe9}</Project>
       <Name>Contracts</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Delegates" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

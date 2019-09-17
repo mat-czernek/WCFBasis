@@ -6,8 +6,8 @@ using System.Linq;
 using System.ServiceModel;
 using System.Threading;
 using Contracts;
+using Contracts.Delegates;
 using Contracts.Models;
-using Service.Delegates;
 using Service.Services;
 
 namespace Service
@@ -16,26 +16,34 @@ namespace Service
     /// Class implements operations performed by WCF service
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false, IncludeExceptionDetailInFaults = true, AutomaticSessionShutdown = false)]
-    [ServiceKnownType(typeof(List<ClientModel>))]
-    public class Operations : IOperations
+    public class ServiceOperationsApi : IServiceOperationsApi
     {
-        private static object _syncObject = new object();
+        private static readonly object SyncObject = new object();
         
         /// <summary>
         /// Gets the list of registered client
         /// </summary>
         private List<ClientModel> _registeredClients;
 
-        private ProcessActions _processActions;
+        private readonly ProcessActions _processActions;
 
-        public event EmitSimpleMessageDelegate OnClientRegistration;
+        private static ServiceOperationsApi _instance = null;
 
-        public event EmitSimpleMessageDelegate OnClientUnregistration;
-
+        public static ServiceOperationsApi Instance
+        {
+            get
+            {
+                lock (SyncObject)
+                {
+                    return _instance ?? (_instance = new ServiceOperationsApi());
+                }
+            }
+        }
+        
         /// <summary>
         /// Default constructor
         /// </summary>
-        public Operations()
+        private ServiceOperationsApi()
         {
             _processActions = new ProcessActions();
             
@@ -43,29 +51,30 @@ namespace Service
         }
 
 
-        private void _clientsCollectionAction(Action<ClientModel> action)
+        private void _executeMethodOnCollection<T>(Action<T> action, IEnumerable<T> collection)
         {
-            var inactiveClients = new List<ClientModel>();
+            var inactiveClients = new List<T>();
 
-            lock (_syncObject)
+            lock (SyncObject)
             {
-                foreach (var client in _registeredClients)
+                var enumerable = collection.ToList();
+                
+                foreach (var item in enumerable)
                 {
                     try
                     {
-                        action(client);
+                        action(item);
                     }
                     catch (CommunicationException)
                     {
-                        inactiveClients.Add(client);
+                        inactiveClients.Add(item);
                     }
                 }
             
-                _registeredClients = _registeredClients.Except(inactiveClients).ToList();
+                collection = enumerable.Except(inactiveClients).ToList();
             }
-            
         }
-        
+
         /// <summary>
         /// Method registers client in WCF service
         /// </summary>
@@ -74,20 +83,18 @@ namespace Service
         {
             if(id == Guid.Empty) return;
 
-            lock (_syncObject)
+            lock (SyncObject)
             {
                 if (_registeredClients.FindIndex(client => client.Id == id) >= 0) return;
             
                 var clientModel = new ClientModel
                 {
                     Id = id,
-                    CallbacksChannel = OperationContext.Current.GetCallbackChannel<ICallbacks>(),
+                    CallbacksApiChannel = OperationContext.Current.GetCallbackChannel<ICallbacksApi>(),
                     RegistrationTime = DateTime.Now
                 };
         
                 _registeredClients.Add(clientModel);
-
-                OnClientRegistration?.Invoke(clientModel.Id.ToString());
             }
             
         }
@@ -100,68 +107,50 @@ namespace Service
         {
             if(id == Guid.Empty) return;
 
-            lock (_syncObject)
+            lock (SyncObject)
             {
-                var clientIndex = _registeredClients.FindIndex(client => client.Id == id);
+                var clientToUnregister = _registeredClients.SingleOrDefault(client => client.Id == id);
 
-                if (clientIndex < 0) return;
-            
-                _registeredClients.RemoveAt(clientIndex);
-                
-                OnClientUnregistration?.Invoke(id.ToString());
+                if(clientToUnregister == null) return;
+
+                _registeredClients.Remove(clientToUnregister);
             }
         }
 
         public void UpdateChannel(Guid id)
         {
-            lock (_syncObject)
+            lock (SyncObject)
             {
                 var clientIndex = _registeredClients.FindIndex(client => client.Id == id);
 
                 if (clientIndex >= 0)
                 {
-                    _registeredClients[clientIndex].CallbacksChannel =
-                        OperationContext.Current.GetCallbackChannel<ICallbacks>();
+                    _registeredClients[clientIndex].CallbacksApiChannel =
+                        OperationContext.Current.GetCallbackChannel<ICallbacksApi>();
                 }
             }
             
         }
-
-        public void SendBroadcastMessage(string message)
-        {
-            _clientsCollectionAction(client => client.CallbacksChannel.BroadcastMessage($"{client.Id} | Message [TEST]: {message}"));
-        }
-
-        public void SendToSelectedClients(string message, List<string> clientsIdList)
-        {
-            lock (_syncObject)
-            {
-                foreach (var clientId in clientsIdList)
-                {
-                    var targetClient = _registeredClients.SingleOrDefault(client => client.Id == Guid.Parse(clientId));
-
-                    targetClient?.CallbacksChannel.BroadcastMessage(message);
-                }
-            }
-            
-        }
-
+        
+        
         public void TakeActions()
         {
             foreach (var action in _processActions.Actions)
             {
-                _clientsCollectionAction(client => client.CallbacksChannel.SetCurrentlyProcessedAction(action));
+                _executeMethodOnCollection(client => client.CallbacksApiChannel.SetCurrentlyProcessedAction(action),
+                    _registeredClients);
                 
                 Thread.Sleep(action.Delay);
             }
 
-            _clientsCollectionAction(client => client.CallbacksChannel.BroadcastMessage("All actions completed!"));
-
+            _executeMethodOnCollection(client => client.CallbacksApiChannel.BroadcastMessage("All actions completed!"),
+                _registeredClients);
         }
 
         public void GetActions()
         {
-            _clientsCollectionAction(client => client.CallbacksChannel.SetActionsInQueue(_processActions.Actions));
+            _executeMethodOnCollection(client => client.CallbacksApiChannel.SetActionsInQueue(_processActions.Actions),
+                _registeredClients);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Client
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false, ConcurrencyMode = ConcurrencyMode.Reentrant)]
     [ServiceKnownType(typeof(List<ClientModel>))]
-    public class Callbacks : ICallbacks
+    public class CallbacksApi : ICallbacksApi
     {
         public ServiceSimpleMessageDelegate ServiceSimpleMessage { get; set; }
         

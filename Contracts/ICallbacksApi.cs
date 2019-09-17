@@ -7,11 +7,10 @@ using Contracts.Models;
 namespace Contracts
 {
     /// <summary>
-    /// Interface defines contract between client and service
-    /// All methods may be call by service on client side
+    /// Interface defines methods implemented on WCF client side that might be executed by WCF service
     /// </summary>
     [ServiceContract(SessionMode = SessionMode.Required)]
-    public interface ICallbacks
+    public interface ICallbacksApi
     {
         ServiceSimpleMessageDelegate ServiceSimpleMessage { get; set; }
         
@@ -20,7 +19,7 @@ namespace Contracts
         ServiceCurrentActionDelegate ServiceCurrentAction { get; set; }
 
         /// <summary>
-        /// Sample method executed by service on client side
+        /// Method sets the
         /// </summary>
         /// <param name="text"></param>
         [OperationContract(IsOneWay = true)]

@@ -20,7 +20,7 @@ namespace Contracts.Models
         /// Callback communication channel used to executes method on client side by service
         /// </summary>
         [DataMember]
-        public ICallbacks CallbacksChannel;
+        public ICallbacksApi CallbacksApiChannel;
 
         /// <summary>
         /// Client registration timestamp

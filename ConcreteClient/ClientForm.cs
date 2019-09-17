@@ -25,9 +25,9 @@ namespace ConcreteClient
             
             _clientSetup = new ClientSetup();
 
-            _clientSetup.CallbackMethods.ServiceSimpleMessage += _onSimpleMessageFromService;
-            _clientSetup.CallbackMethods.ServiceActionsQueue += _onServiceActionQueue;
-            _clientSetup.CallbackMethods.ServiceCurrentAction += _onServiceCurrentAction;
+            _clientSetup.CallbackApiMethods.ServiceSimpleMessage += _onSimpleMessageFromService;
+            _clientSetup.CallbackApiMethods.ServiceActionsQueue += _onServiceActionQueue;
+            _clientSetup.CallbackApiMethods.ServiceCurrentAction += _onServiceCurrentAction;
 
             tbClientName.Text = _clientSetup.Id.ToString();
         }

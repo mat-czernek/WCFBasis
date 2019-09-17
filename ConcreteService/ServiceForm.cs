@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Contracts;
 using Service;
 
 namespace ConcreteService
@@ -22,9 +23,6 @@ namespace ConcreteService
             
             _wcfHost = new Host();
 
-            _wcfHost.ServiceOperations.OnClientRegistration += _onClientRegistration;
-            _wcfHost.ServiceOperations.OnClientUnregistration += _onClientUnregistration;
-            
             _wcfHost.Open();
         }
 
@@ -51,15 +49,12 @@ namespace ConcreteService
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            _wcfHost.ServiceOperations.SendBroadcastMessage(tbBroadcastMessage.Text);
+   
         }
 
         private void btnSendToSelected_Click(object sender, EventArgs e)
         {
-            var selectedClients = (from object index in chklbRegisteredClients.CheckedIndices
-                select chklbRegisteredClients.Items[(int) index].ToString()).ToList();
-            
-            _wcfHost.ServiceOperations.SendToSelectedClients(tbBroadcastMessage.Text, selectedClients);
+
         }
     }
 }

@@ -40,11 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Delegates\EmitSimpleMessageDelegate.cs" />
     <Compile Include="Delegates\ServiceActionsQueueDelegate.cs" />
     <Compile Include="Delegates\ServiceCurrentActionDelegate.cs" />
     <Compile Include="Delegates\ServiceSimpleMessageDelegate.cs" />
-    <Compile Include="ICallbacks.cs" />
-    <Compile Include="IOperations.cs" />
+    <Compile Include="ICallbacksApi.cs" />
+    <Compile Include="IServiceOperationsApi.cs" />
     <Compile Include="Models\ActionModel.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
