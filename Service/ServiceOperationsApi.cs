@@ -15,21 +15,34 @@ namespace Service
 {
     /// <summary>
     /// Class implements operations performed by WCF service
+    /// All methods may be called by WCF client
     /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false, IncludeExceptionDetailInFaults = true, AutomaticSessionShutdown = false)]
     public class ServiceOperationsApi : IServiceOperationsApi
     {
+        /// <summary>
+        /// Thread synchronization objecy
+        /// </summary>
         private static readonly object SyncObject = new object();
         
         /// <summary>
-        /// Gets the list of registered client
+        /// The list of registered clients
         /// </summary>
         private readonly List<ClientModel> _registeredClients;
 
+        /// <summary>
+        /// Sample class with action to process
+        /// </summary>
         private ProcessActions _processActions;
 
+        /// <summary>
+        /// Singleton instance of the class
+        /// </summary>
         private static ServiceOperationsApi _instance = null;
 
+        /// <summary>
+        /// Creates the singleton instance of the class
+        /// </summary>
         public static ServiceOperationsApi Instance
         {
             get
@@ -50,7 +63,14 @@ namespace Service
         }
 
 
-        private void _executeMethodOnCollection<T>(Action<T> action, List<T> collection)
+        /// <summary>
+        /// Method enumerates items on the list and executes item method degined in parameter.
+        /// This method it's used to avoid multiple foreach statement in cases when collection needs to be enumerated
+        /// </summary>
+        /// <param name="action">Method to be called by collection item</param>
+        /// <param name="collection">Target collection</param>
+        /// <typeparam name="T">The type of the collection item</typeparam>
+        private void _executeMethodOnCollectionItem<T>(Action<T> action, List<T> collection)
         {
             var inactiveClients = new List<T>();
 
@@ -118,6 +138,10 @@ namespace Service
             return OperationReturnType.Success;
         }
 
+        /// <summary>
+        /// Method updates client communication channel
+        /// </summary>
+        /// <param name="id"></param>
         public void UpdateChannel(Guid id)
         {
             lock (SyncObject)
@@ -134,17 +158,20 @@ namespace Service
         }
         
         
+        /// <summary>
+        /// Method executes sample actions and send status to the registered clients
+        /// </summary>
         public void TakeActions()
         {
             _processActions = new ProcessActions();
             
-            _executeMethodOnCollection(
+            _executeMethodOnCollectionItem(
                 client => client.CallbacksApiChannel.UpdateActionsQueue(_processActions.Actions
                     .FindAll(act => act.Status != ActionStatus.Completed).ToList()), _registeredClients);
             
             foreach (var action in _processActions.Actions)
             {
-                _executeMethodOnCollection(client => client.CallbacksApiChannel.SetCurrentlyProcessedAction(action),
+                _executeMethodOnCollectionItem(client => client.CallbacksApiChannel.SetCurrentlyProcessedAction(action),
                     _registeredClients);
                 
                 
@@ -152,12 +179,12 @@ namespace Service
 
                 action.Status = ActionStatus.Completed;
                 
-                _executeMethodOnCollection(
+                _executeMethodOnCollectionItem(
                     client => client.CallbacksApiChannel.UpdateActionsQueue(_processActions.Actions
                         .FindAll(act => act.Status != ActionStatus.Completed).ToList()), _registeredClients);
             }
 
-            _executeMethodOnCollection(client => client.CallbacksApiChannel.BroadcastMessage("All actions completed!"),
+            _executeMethodOnCollectionItem(client => client.CallbacksApiChannel.BroadcastMessage("All actions completed!"),
                 _registeredClients);
         }
     }

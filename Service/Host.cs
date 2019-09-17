@@ -35,7 +35,6 @@ namespace Service
             {
                 Security = {Mode = NetNamedPipeSecurityMode.Transport},
                 MaxConnections = 10,
-                MaxBufferPoolSize = 2621440,
                 OpenTimeout = new TimeSpan(0, 0, 30),
                 ReceiveTimeout = new TimeSpan(0, 0, 10),
                 SendTimeout = new TimeSpan(0, 0, 5)
@@ -57,7 +56,6 @@ namespace Service
             serviceHost.Faulted += _onHostFailure;
             serviceHost.Opened += _onHostOpened;
             
-
             return serviceHost;
         }
 
@@ -80,8 +78,6 @@ namespace Service
         /// <param name="e">Event arguments</param>
         private void _onHostFailure(object sender, EventArgs e)
         {
-            Console.WriteLine("Host failure! Try to re-initalize.");
-            
             _closeServiceHost();
 
             _serviceHost = _initalizeServiceHost();

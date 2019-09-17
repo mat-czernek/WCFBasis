@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Client;
+using Contracts;
 using Contracts.Models;
 
 namespace ConcreteClient
@@ -17,17 +18,19 @@ namespace ConcreteClient
     public partial class Form1 : Form
     {
         private readonly ClientSetup _clientSetup;
+
+        private readonly ICallbacksApi _callbacksApi = new CallbacksApi();
         
         
         public Form1()
         {
             InitializeComponent();
-            
-            _clientSetup = new ClientSetup();
 
-            _clientSetup.CallbackApiMethods.ServiceSimpleMessage += _onSimpleMessageFromService;
-            _clientSetup.CallbackApiMethods.ServiceActionsQueue += _onServiceActionQueue;
-            _clientSetup.CallbackApiMethods.ServiceCurrentAction += _onServiceCurrentAction;
+            _clientSetup = new ClientSetup(_callbacksApi);
+
+            _callbacksApi.ServiceSimpleMessage += _onSimpleMessageFromService;
+            _callbacksApi.ServiceActionsQueue += _onServiceActionQueue;
+            _callbacksApi.ServiceCurrentAction += _onServiceCurrentAction;
 
             tbClientName.Text = _clientSetup.Id.ToString();
         }

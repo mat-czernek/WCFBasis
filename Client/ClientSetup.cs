@@ -27,18 +27,17 @@ namespace Client
         /// </summary>
         public IServiceOperationsApi ProxyChannel => _createProxyChannel();
 
-        /// <summary>
-        /// Definition of callback methods launched by service on client side
-        /// </summary>
-        public readonly ICallbacksApi CallbackApiMethods;
-
+        private ICallbacksApi _callbackImplementation;
+        
         public Guid Id;
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ClientSetup()
+        public ClientSetup(ICallbacksApi callbackImplementation)
         {
+            _callbackImplementation = callbackImplementation;
+            
             Id = Guid.NewGuid();
 
             _updateChannelTimer = new Timer(4000);
@@ -51,13 +50,10 @@ namespace Client
             {
                 Security = { Mode = NetNamedPipeSecurityMode.Transport },
                 MaxConnections = 10,
-                MaxBufferPoolSize = 2621440,
                 OpenTimeout = new TimeSpan(0, 0, 30),
                 ReceiveTimeout = new TimeSpan(0, 0, 5),
                 SendTimeout = new TimeSpan(0, 0, 5)
             };
-            
-            CallbackApiMethods = new CallbacksApi();
         }
 
         private void _onUpdateChannelTimerElapsed(object sender, ElapsedEventArgs e)
@@ -111,7 +107,7 @@ namespace Client
         /// </summary>
         private DuplexChannelFactory<IServiceOperationsApi> _createChannelFactory()
         {
-            var channelFactory = new DuplexChannelFactory<IServiceOperationsApi>(CallbackApiMethods, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
+            var channelFactory = new DuplexChannelFactory<IServiceOperationsApi>(_callbackImplementation, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 
             return channelFactory;
