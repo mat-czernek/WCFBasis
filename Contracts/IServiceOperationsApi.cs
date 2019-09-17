@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 using Contracts.Delegates;
+using Contracts.Enums;
 using Contracts.Models;
 
 namespace Contracts
@@ -16,23 +18,20 @@ namespace Contracts
         /// Register new client in WCF service
         /// </summary>
         /// <param name="id">Client unique Id</param>
-        [OperationContract(IsOneWay = true)]
-        void RegisterClient(Guid id);
+        [OperationContract]
+        OperationReturnType RegisterClient(Guid id);
 
         /// <summary>
         /// Unregister client from WCF service
         /// </summary>
         /// <param name="id">Client unique Id</param>
-        [OperationContract(IsOneWay = true)]
-        void UnregisterClient(Guid id);
+        [OperationContract]
+        OperationReturnType UnregisterClient(Guid id);
 
         [OperationContract(IsOneWay = true)]
         void UpdateChannel(Guid id);
 
         [OperationContract(IsOneWay = true)]
         void TakeActions();
-        
-        [OperationContract(IsOneWay = true)]
-        void GetActions();
     }
 }

@@ -12,7 +12,6 @@ namespace Client
     /// Class implements method called by WCF service on client side
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false, ConcurrencyMode = ConcurrencyMode.Reentrant)]
-    [ServiceKnownType(typeof(List<ClientModel>))]
     public class CallbacksApi : ICallbacksApi
     {
         public ServiceSimpleMessageDelegate ServiceSimpleMessage { get; set; }
@@ -30,14 +29,14 @@ namespace Client
             ServiceSimpleMessage?.Invoke(text);
         }
 
-        public void SetActionsInQueue(List<ActionModel> actions)
-        {
-            ServiceActionsQueue?.Invoke(actions);
-        }
-
         public void SetCurrentlyProcessedAction(ActionModel action)
         {
             ServiceCurrentAction?.Invoke(action);
+        }
+
+        public void UpdateActionsQueue(List<ActionModel> actions)
+        {
+            ServiceActionsQueue?.Invoke(actions);
         }
     }
 }

@@ -44,25 +44,20 @@ namespace ConcreteClient
 
         private void _onServiceActionQueue(List<ActionModel> actions)
         {
-            var stringBuilder = new StringBuilder();
+            lbActionsInQueue.Items.Clear();
 
-            stringBuilder.Append("Actions in queue: ");
-            stringBuilder.Append(Environment.NewLine);
-            
             foreach (var action in actions)
             {
-                stringBuilder.Append($"Action name: {action.Name}");
-                stringBuilder.Append(Environment.NewLine);
+                lbActionsInQueue.Items.Add(action.Name);
             }
-
-            rtbMessages.Text = stringBuilder.ToString();
         }
         
         private void btnRegister_Click(object sender, EventArgs e)
         {
             try
             {
-                _clientSetup.ProxyChannel.RegisterClient(_clientSetup.Id);
+                var result = _clientSetup.ProxyChannel.RegisterClient(_clientSetup.Id);
+                rtbMessages.Text = result.ToString();
             }
             catch (EndpointNotFoundException)
             {
@@ -75,7 +70,8 @@ namespace ConcreteClient
         {
             try
             {
-                _clientSetup.ProxyChannel.UnregisterClient(_clientSetup.Id);
+                var result = _clientSetup.ProxyChannel.UnregisterClient(_clientSetup.Id);
+                rtbMessages.Text = result.ToString();
             }
             catch (EndpointNotFoundException)
             {
@@ -99,10 +95,6 @@ namespace ConcreteClient
         {
             _clientSetup.ProxyChannel.TakeActions();
         }
-
-        private void btnGetActions_Click(object sender, EventArgs e)
-        {
-            _clientSetup.ProxyChannel.GetActions();
-        }
+        
     }
 }

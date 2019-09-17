@@ -20,7 +20,7 @@ namespace Client
         /// </summary>
         private readonly NetNamedPipeBinding _netNamedPipeBinding;
 
-        private static Timer _updateChannelTimer;
+        private readonly Timer _updateChannelTimer;
        
         /// <summary>
         /// Communication proxy with service

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceProcess;
+using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ConcreteService
 {
@@ -11,12 +12,14 @@ namespace ConcreteService
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ServiceForm());
+            ServiceBase[] ServicesToRun;
+            ServicesToRun = new ServiceBase[]
+            {
+                new WCFBasisService()
+            };
+            ServiceBase.Run(ServicesToRun);
         }
     }
 }

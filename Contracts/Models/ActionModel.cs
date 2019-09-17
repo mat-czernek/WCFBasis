@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+using Contracts.Enums;
 
 namespace Contracts.Models
 {
@@ -10,5 +11,8 @@ namespace Contracts.Models
     
         [DataMember]
         public int Delay { get; set; }
+
+        [DataMember] 
+        public ActionStatus Status { get; set; } = ActionStatus.Idle;
     }
 }
