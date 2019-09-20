@@ -1,23 +1,18 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.ServiceModel;
-using System.Threading;
-using System.Threading.Tasks;
 using Contracts;
-using Contracts.Delegates;
-using Contracts.Enums;
 using Contracts.Models;
 using Service.Actions;
 using System.Timers;
-using Service.Services;
 using Timer = System.Timers.Timer;
 
 namespace Service
 {
+    //TODO: extract some values as external configuration, like max time in seconds when client may be considered as inactive
+    
+    
     /// <summary>
     /// Class implements operations performed by WCF service
     /// All methods may be called by WCF client
@@ -26,97 +21,109 @@ namespace Service
     public class ServiceOperationsApi : IServiceOperationsApi
     {
         /// <summary>
-        /// Thread synchronization objecy
+        /// Thread synchronization object
         /// </summary>
-        private static readonly object SyncObject = new object();
+        private static readonly object ActionsSyncObject = new object();
+        
+        private static readonly object ClientsSyncObject = new object();
         
         /// <summary>
         /// The list of registered clients
         /// </summary>
-        public static readonly List<ClientModel> RegisteredClients = new List<ClientModel>();
+        public static List<ClientModel> RegisteredClients = new List<ClientModel>();
 
-        private static readonly ObservableCollection<IAction> ActionsQueue = new ObservableCollection<IAction>();
-        
-        private readonly Timer _processQueue;
-        
+        /// <summary>
+        /// The list of service actions in queue
+        /// </summary>
+        private static readonly List<IServiceAction> ServiceActionsQueue = new List<IServiceAction>();
+
         /// <summary>
         /// Singleton instance of the class
         /// </summary>
-        private static ServiceOperationsApi _instance = null;
+        private static ServiceOperationsApi _instance;
 
         /// <summary>
         /// Creates the singleton instance of the class
         /// </summary>
-        public static ServiceOperationsApi Instance
-        {
-            get
-            {
-                lock (SyncObject)
-                {
-                    return _instance ?? (_instance = new ServiceOperationsApi());
-                }
-            }
-        }
-        
+        public static ServiceOperationsApi Instance => _instance ?? (_instance = new ServiceOperationsApi());
+
         /// <summary>
         /// Default constructor
         /// </summary>
         private ServiceOperationsApi()
         {
-            _processQueue = new Timer(1000);
-            _processQueue.Elapsed += _processQueueOnElapsed;
-            _processQueue.Enabled = true;
-            _processQueue.AutoReset = true;
-            _processQueue.Start();
+            var serviceActionsQueueProcessingTimer = new Timer(1000);
+            serviceActionsQueueProcessingTimer.Elapsed += _serviceActionsQueueProcessingTimerOnElapsed;
+            serviceActionsQueueProcessingTimer.Enabled = true;
+            serviceActionsQueueProcessingTimer.AutoReset = true;
+            serviceActionsQueueProcessingTimer.Start();
+
+            var clientsMaintenanceTimer = new Timer(10000);
+            clientsMaintenanceTimer.Elapsed += _clientsMaintenanceTimerOnElapsed;
+            clientsMaintenanceTimer.Enabled = true;
+            clientsMaintenanceTimer.AutoReset = true;
+            clientsMaintenanceTimer.Start();
         }
 
-        private void _processQueueOnElapsed(object sender, ElapsedEventArgs e)
+        private static void _clientsMaintenanceTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
-            lock (SyncObject)
+            lock (ClientsSyncObject)
+            {
+                // find inactive clients
+                var inactiveClients = RegisteredClients
+                    .FindAll(client => (DateTime.Now - client.LastActivityTime).Seconds >= 15);
+
+                // remove inactive clients
+                RegisteredClients = RegisteredClients.Except(inactiveClients).ToList();
+            }
+        }
+
+        /// <summary>
+        /// Timer method, process one action per cycle
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void _serviceActionsQueueProcessingTimerOnElapsed(object sender, ElapsedEventArgs e)
+        {
+            lock (ActionsSyncObject)
             {
                 try
                 {
-                    var action = ActionsQueue.First();
+                    var action = ServiceActionsQueue.First();
                     
                     if(action == null)
                         return;
                     
                     action.Take();
 
-                    ActionsQueue.Remove(action);
+                    ServiceActionsQueue.Remove(action);
                 }
                 catch(InvalidOperationException){}
             }
         }
-
-
-        public void ActionRequest(ActionType actionType, Guid clientId)
+        
+        /// <summary>
+        /// Method produce action based on the client requirements
+        /// </summary>
+        /// <param name="actionModel">Action model</param>
+        public void ActionRequest(ActionModel actionModel)
         {
-            if (actionType == ActionType.UpdateChannel)
+            var actionsFactory = new ServiceActionsFactory();
+
+            var action = actionsFactory.Create(actionModel);
+            
+            if(action is InvalidAction) return;
+            
+            if(actionModel.ExecuteImmediately)
             {
-                new UpdateChannelAction(clientId, OperationContext.Current.GetCallbackChannel<ICallbacksApi>()).Take();
+                action.Take();
             }
-            
-            if (actionType == ActionType.UnregisterClient)
+            else
             {
-                new UnregisterClientAction(clientId).Take();
-            }
-            
-            if (actionType == ActionType.RegisterClient)
-            {
-                new RegisterClientAction(clientId, OperationContext.Current.GetCallbackChannel<ICallbacksApi>()).Take();
-            }
-            
-            
-            switch (actionType)
-            {
-                case ActionType.SampleOperation:
-                    if(ActionsQueue.All(action => action.Type != ActionType.SampleOperation))
-                        ActionsQueue.Add(new SampleOperationAction(clientId));
-                    break;
-                
-                default:
-                    break;
+                lock (ActionsSyncObject)
+                {
+                    ServiceActionsQueue.Add(action);
+                }
             }
         }
     }

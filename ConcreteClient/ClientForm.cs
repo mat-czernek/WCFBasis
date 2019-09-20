@@ -62,7 +62,8 @@ namespace ConcreteClient
             {
                 //var result = _clientSetup.ProxyChannel.RegisterClient(_clientSetup.Id);
                 //rtbMessages.Text = result.ToString();
-                _clientSetup.ProxyChannel.ActionRequest(ActionType.RegisterClient, _clientSetup.Id);
+                _clientSetup.ProxyChannel.ActionRequest(new ActionModel
+                    {ClientId = _clientSetup.Id, Type = ActionType.RegisterClient, ExecuteImmediately = true});
             }
             catch (EndpointNotFoundException)
             {
@@ -77,7 +78,8 @@ namespace ConcreteClient
             {
                 //var result = _clientSetup.ProxyChannel.UnregisterClient(_clientSetup.Id);
                 //rtbMessages.Text = result.ToString();
-                _clientSetup.ProxyChannel.ActionRequest(ActionType.UnregisterClient, _clientSetup.Id);
+                _clientSetup.ProxyChannel.ActionRequest(new ActionModel
+                    {ClientId = _clientSetup.Id, Type = ActionType.UnregisterClient, ExecuteImmediately = true});
             }
             catch (EndpointNotFoundException)
             {
@@ -89,17 +91,19 @@ namespace ConcreteClient
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try
+            /*try
             {
-                _clientSetup.ProxyChannel.ActionRequest(ActionType.UnregisterClient, _clientSetup.Id);
+                _clientSetup.ProxyChannel.ActionRequest(new ActionModel
+                    {ClientId = _clientSetup.Id, Type = ActionType.UnregisterClient, ExecuteImmediately = true});
             }
-            catch (EndpointNotFoundException){}
+            catch (EndpointNotFoundException){}*/
             
         }
 
         private void btnTakeActions_Click(object sender, EventArgs e)
         {
-            _clientSetup.ProxyChannel.ActionRequest(ActionType.SampleOperation, _clientSetup.Id);
+            _clientSetup.ProxyChannel.ActionRequest(new ActionModel
+                {ClientId = _clientSetup.Id, Type = ActionType.SampleOperation, ExecuteImmediately = false});
         }
         
     }

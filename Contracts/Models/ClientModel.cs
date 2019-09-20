@@ -27,5 +27,7 @@ namespace Contracts.Models
         /// </summary>
         [DataMember]
         public DateTime RegistrationTime;
+
+        public DateTime LastActivityTime = DateTime.MinValue;
     }
 }

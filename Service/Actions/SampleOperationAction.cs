@@ -5,72 +5,77 @@ using System.ServiceModel;
 using System.Threading;
 using Contracts.Enums;
 using Service.Services;
+using Service.Utilities;
 
 namespace Service.Actions
 {
-    public class SampleOperationAction : IAction
+    /// <summary>
+    /// The class implements operation on sample class that imitates time consuming operations
+    /// This has been done to show that this type of operation does not block the other methods executed by client (like update channel, register or unregister)
+    /// </summary>
+    public class SampleOperationAction : IServiceAction
     {
         /// <summary>
-        /// Thread synchronization objecy
+        /// Thread synchronization context
         /// </summary>
         private static readonly object SyncObject = new object();
         
+        /// <summary>
+        /// Gets the action type
+        /// </summary>
         public ActionType Type { get; set; } = ActionType.SampleOperation;
         
+        /// <summary>
+        /// Gets the action status
+        /// </summary>
         public ActionStatus Status { get; set; } = ActionStatus.Idle;
 
+        /// <summary>
+        /// WCF client Id
+        /// </summary>
         public Guid ClientId { get; }
         
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="clientId"></param>
         public SampleOperationAction(Guid clientId)
         {
             ClientId = clientId;
         }
         
+        /// <summary>
+        /// Method executes operations defined in ProcessOperations class
+        /// This has been done to simulate the time consuming operations and show how to send the status for each of them to the client
+        /// </summary>
         public void Take()
         {
             var processOperations = new ProcessOperations();
-            
-            _executeMethodOnCollectionItem(
+
+            CollectionsOperations.ExecuteMethodOnItems(
                 client => client.CallbacksApiChannel.UpdateActionsQueue(processOperations.Operations
                     .FindAll(act => act.Status != OperationStatus.Completed).ToList()), ServiceOperationsApi.RegisteredClients);
 
+            Status = ActionStatus.InProgress;
+            
             foreach (var operation in processOperations.Operations)
             {
-                _executeMethodOnCollectionItem(client => client.CallbacksApiChannel.SetCurrentlyProcessedAction(operation),
+                CollectionsOperations.ExecuteMethodOnItems(client => client.CallbacksApiChannel.SetCurrentlyProcessedAction(operation),
                     ServiceOperationsApi.RegisteredClients);
                 
                 Thread.Sleep(operation.Delay);
                 
                 operation.Status = OperationStatus.Completed;
-                
-                _executeMethodOnCollectionItem(
+
+                CollectionsOperations.ExecuteMethodOnItems(
                     client => client.CallbacksApiChannel.UpdateActionsQueue(processOperations.Operations
                         .FindAll(act => act.Status != OperationStatus.Completed).ToList()), ServiceOperationsApi.RegisteredClients);
             }
-            
-            _executeMethodOnCollectionItem(client => client.CallbacksApiChannel.BroadcastMessage("All actions completed!"),
-                ServiceOperationsApi.RegisteredClients);
-        }
-        
-        /// <summary>
-        /// Method enumerates items on the list and executes item method degined in parameter.
-        /// This method it's used to avoid multiple foreach statement in cases when collection needs to be enumerated
-        /// </summary>
-        /// <param name="action">Method to be called by collection item</param>
-        /// <param name="collection">Target collection</param>
-        /// <typeparam name="T">The type of the collection item</typeparam>
-        private void _executeMethodOnCollectionItem<T>(Action<T> action, List<T> collection)
-        {
 
-            for(var i = 0; i < collection.Count; i++)
-            {
-                try
-                {
-                    action(collection[i]);
-                }
-                catch (CommunicationException) {}
-            }
-            
+            Status = ActionStatus.Completed;
+
+            CollectionsOperations.ExecuteMethodOnItems(client => client.CallbacksApiChannel.Message("All actions completed!"),
+                ServiceOperationsApi.RegisteredClients);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.ServiceModel;
 using System.Timers;
 using Contracts;
 using Contracts.Enums;
+using Contracts.Models;
 
 namespace Client
 {
@@ -59,7 +60,7 @@ namespace Client
 
         private void _onUpdateChannelTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            ProxyChannel.ActionRequest(ActionType.UpdateChannel, Id);
+            ProxyChannel.ActionRequest(new ActionModel {ClientId = Id, Type = ActionType.UpdateChannel, ExecuteImmediately = true});
         }
 
         /// <summary>

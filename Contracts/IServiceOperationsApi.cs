@@ -15,6 +15,6 @@ namespace Contracts
     public interface IServiceOperationsApi
     {
         [OperationContract(IsOneWay = true)]
-        void ActionRequest(ActionType actionType, Guid clientId);
+        void ActionRequest(ActionModel actionModel);
     }
 }

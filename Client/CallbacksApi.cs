@@ -24,7 +24,7 @@ namespace Client
         /// Method displays message from the service
         /// </summary>
         /// <param name="text">String message to be sent by service to client</param>
-        public void BroadcastMessage(string text)
+        public void Message(string text)
         {
             ServiceSimpleMessage?.Invoke(text);
         }

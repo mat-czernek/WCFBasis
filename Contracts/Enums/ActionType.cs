@@ -5,6 +5,7 @@ namespace Contracts.Enums
         RegisterClient,
         UnregisterClient,
         UpdateChannel,
-        SampleOperation
+        SampleOperation,
+        Invalid
     }
 }

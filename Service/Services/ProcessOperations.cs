@@ -4,10 +4,19 @@ using Contracts.Models;
 
 namespace Service.Services
 {
+    /// <summary>
+    /// Sample class that defines time consuming like operations
+    /// </summary>
     public class ProcessOperations
     {
+        /// <summary>
+        /// List of time consuming operations
+        /// </summary>
         public List<OperationModel> Operations { get; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ProcessOperations()
         {
             var random = new Random();

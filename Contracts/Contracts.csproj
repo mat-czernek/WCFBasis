@@ -48,6 +48,7 @@
     <Compile Include="Enums\OperationStatus.cs" />
     <Compile Include="ICallbacksApi.cs" />
     <Compile Include="IServiceOperationsApi.cs" />
+    <Compile Include="Models\ActionModel.cs" />
     <Compile Include="Models\OperationModel.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
