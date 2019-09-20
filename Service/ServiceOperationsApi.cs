@@ -2,14 +2,19 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
+using System.Threading.Tasks;
 using Contracts;
 using Contracts.Delegates;
 using Contracts.Enums;
 using Contracts.Models;
+using Service.Actions;
+using System.Timers;
 using Service.Services;
+using Timer = System.Timers.Timer;
 
 namespace Service
 {
@@ -28,13 +33,12 @@ namespace Service
         /// <summary>
         /// The list of registered clients
         /// </summary>
-        private readonly List<ClientModel> _registeredClients;
+        public static readonly List<ClientModel> RegisteredClients = new List<ClientModel>();
 
-        /// <summary>
-        /// Sample class with action to process
-        /// </summary>
-        private ProcessActions _processActions;
-
+        private static readonly ObservableCollection<IAction> ActionsQueue = new ObservableCollection<IAction>();
+        
+        private readonly Timer _processQueue;
+        
         /// <summary>
         /// Singleton instance of the class
         /// </summary>
@@ -59,133 +63,61 @@ namespace Service
         /// </summary>
         private ServiceOperationsApi()
         {
-            _registeredClients = new List<ClientModel>();
+            _processQueue = new Timer(1000);
+            _processQueue.Elapsed += _processQueueOnElapsed;
+            _processQueue.Enabled = true;
+            _processQueue.AutoReset = true;
+            _processQueue.Start();
         }
 
-
-        /// <summary>
-        /// Method enumerates items on the list and executes item method degined in parameter.
-        /// This method it's used to avoid multiple foreach statement in cases when collection needs to be enumerated
-        /// </summary>
-        /// <param name="action">Method to be called by collection item</param>
-        /// <param name="collection">Target collection</param>
-        /// <typeparam name="T">The type of the collection item</typeparam>
-        private void _executeMethodOnCollectionItem<T>(Action<T> action, List<T> collection)
+        private void _processQueueOnElapsed(object sender, ElapsedEventArgs e)
         {
-            var inactiveClients = new List<T>();
-
             lock (SyncObject)
             {
-
-                foreach (var item in collection)
+                try
                 {
-                    try
-                    {
-                        action(item);
-                    }
-                    catch (CommunicationException)
-                    {
-                        inactiveClients.Add(item);
-                    }
+                    var action = ActionsQueue.First();
+                    
+                    if(action == null)
+                        return;
+                    
+                    action.Take();
+
+                    ActionsQueue.Remove(action);
                 }
-            
-                collection = collection.Except(inactiveClients).ToList();
+                catch(InvalidOperationException){}
             }
         }
 
-        /// <summary>
-        /// Method registers client in WCF service
-        /// </summary>
-        /// <param name="id">Client unique Id</param>
-        public OperationReturnType RegisterClient(Guid id)
+
+        public void ActionRequest(ActionType actionType, Guid clientId)
         {
-            if(id == Guid.Empty) return OperationReturnType.Failure;
-
-            lock (SyncObject)
+            if (actionType == ActionType.UpdateChannel)
             {
-                if (_registeredClients.FindIndex(client => client.Id == id) >= 0) return OperationReturnType.ClientAlreadyExist;
-            
-                var clientModel = new ClientModel
-                {
-                    Id = id,
-                    CallbacksApiChannel = OperationContext.Current.GetCallbackChannel<ICallbacksApi>(),
-                    RegistrationTime = DateTime.Now
-                };
-        
-                _registeredClients.Add(clientModel);
-            }
-
-            return OperationReturnType.Success;
-        }
-        
-        /// <summary>
-        /// Method un-registers client from the WCF service
-        /// </summary>
-        /// <param name="id">Client unique Id</param>
-        public OperationReturnType UnregisterClient(Guid id)
-        {
-            if(id == Guid.Empty) return OperationReturnType.Failure;
-
-            lock (SyncObject)
-            {
-                var clientToUnregister = _registeredClients.SingleOrDefault(client => client.Id == id);
-
-                if(clientToUnregister == null) return OperationReturnType.ClientNotExist;
-
-                _registeredClients.Remove(clientToUnregister);
-            }
-
-            return OperationReturnType.Success;
-        }
-
-        /// <summary>
-        /// Method updates client communication channel
-        /// </summary>
-        /// <param name="id"></param>
-        public void UpdateChannel(Guid id)
-        {
-            lock (SyncObject)
-            {
-                var clientIndex = _registeredClients.FindIndex(client => client.Id == id);
-
-                if (clientIndex >= 0)
-                {
-                    _registeredClients[clientIndex].CallbacksApiChannel =
-                        OperationContext.Current.GetCallbackChannel<ICallbacksApi>();
-                }
+                new UpdateChannelAction(clientId, OperationContext.Current.GetCallbackChannel<ICallbacksApi>()).Take();
             }
             
-        }
-        
-        
-        /// <summary>
-        /// Method executes sample actions and send status to the registered clients
-        /// </summary>
-        public void TakeActions()
-        {
-            _processActions = new ProcessActions();
-            
-            _executeMethodOnCollectionItem(
-                client => client.CallbacksApiChannel.UpdateActionsQueue(_processActions.Actions
-                    .FindAll(act => act.Status != ActionStatus.Completed).ToList()), _registeredClients);
-            
-            foreach (var action in _processActions.Actions)
+            if (actionType == ActionType.UnregisterClient)
             {
-                _executeMethodOnCollectionItem(client => client.CallbacksApiChannel.SetCurrentlyProcessedAction(action),
-                    _registeredClients);
+                new UnregisterClientAction(clientId).Take();
+            }
+            
+            if (actionType == ActionType.RegisterClient)
+            {
+                new RegisterClientAction(clientId, OperationContext.Current.GetCallbackChannel<ICallbacksApi>()).Take();
+            }
+            
+            
+            switch (actionType)
+            {
+                case ActionType.SampleOperation:
+                    if(ActionsQueue.All(action => action.Type != ActionType.SampleOperation))
+                        ActionsQueue.Add(new SampleOperationAction(clientId));
+                    break;
                 
-                
-                Thread.Sleep(action.Delay);
-
-                action.Status = ActionStatus.Completed;
-                
-                _executeMethodOnCollectionItem(
-                    client => client.CallbacksApiChannel.UpdateActionsQueue(_processActions.Actions
-                        .FindAll(act => act.Status != ActionStatus.Completed).ToList()), _registeredClients);
+                default:
+                    break;
             }
-
-            _executeMethodOnCollectionItem(client => client.CallbacksApiChannel.BroadcastMessage("All actions completed!"),
-                _registeredClients);
         }
     }
 }

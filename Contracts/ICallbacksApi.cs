@@ -26,9 +26,9 @@ namespace Contracts
         void BroadcastMessage(string text);
 
         [OperationContract(IsOneWay = true)]
-        void SetCurrentlyProcessedAction(ActionModel action);
+        void SetCurrentlyProcessedAction(OperationModel operation);
 
         [OperationContract(IsOneWay = true)]
-        void UpdateActionsQueue(List<ActionModel> actions);
+        void UpdateActionsQueue(List<OperationModel> actions);
     }
 }

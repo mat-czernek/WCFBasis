@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcreteClient", "ConcreteC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcreteService", "ConcreteService\ConcreteService.csproj", "{DD3895CF-AFE3-45B9-BF4F-F5A4ABB70693}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcreteServiceConsole", "ConcreteServiceConsole\ConcreteServiceConsole.csproj", "{3A9075D3-16A3-44B3-9B1E-14687DC0CEB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{DD3895CF-AFE3-45B9-BF4F-F5A4ABB70693}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD3895CF-AFE3-45B9-BF4F-F5A4ABB70693}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD3895CF-AFE3-45B9-BF4F-F5A4ABB70693}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A9075D3-16A3-44B3-9B1E-14687DC0CEB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9075D3-16A3-44B3-9B1E-14687DC0CEB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9075D3-16A3-44B3-9B1E-14687DC0CEB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9075D3-16A3-44B3-9B1E-14687DC0CEB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

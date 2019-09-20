@@ -2,6 +2,7 @@
 using System.ServiceModel;
 using System.Timers;
 using Contracts;
+using Contracts.Enums;
 
 namespace Client
 {
@@ -40,7 +41,7 @@ namespace Client
             
             Id = Guid.NewGuid();
 
-            _updateChannelTimer = new Timer(4000);
+            _updateChannelTimer = new Timer(1000);
             _updateChannelTimer.Elapsed += _onUpdateChannelTimerElapsed;
             _updateChannelTimer.Enabled = true;
             _updateChannelTimer.AutoReset = true;
@@ -58,7 +59,7 @@ namespace Client
 
         private void _onUpdateChannelTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            ProxyChannel.UpdateChannel(Id);
+            ProxyChannel.ActionRequest(ActionType.UpdateChannel, Id);
         }
 
         /// <summary>

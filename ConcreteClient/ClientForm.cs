@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Client;
 using Contracts;
+using Contracts.Enums;
 using Contracts.Models;
 
 namespace ConcreteClient
@@ -40,12 +41,12 @@ namespace ConcreteClient
             rtbMessages.Text = text;
         }
 
-        private void _onServiceCurrentAction(ActionModel action)
+        private void _onServiceCurrentAction(OperationModel operation)
         {
-            rtbMessages.Text = $"Currently processed action name: {action.Name}";
+            rtbMessages.Text = $"Currently processed action name: {operation.Name}";
         }
 
-        private void _onServiceActionQueue(List<ActionModel> actions)
+        private void _onServiceActionQueue(List<OperationModel> actions)
         {
             lbActionsInQueue.Items.Clear();
 
@@ -59,8 +60,9 @@ namespace ConcreteClient
         {
             try
             {
-                var result = _clientSetup.ProxyChannel.RegisterClient(_clientSetup.Id);
-                rtbMessages.Text = result.ToString();
+                //var result = _clientSetup.ProxyChannel.RegisterClient(_clientSetup.Id);
+                //rtbMessages.Text = result.ToString();
+                _clientSetup.ProxyChannel.ActionRequest(ActionType.RegisterClient, _clientSetup.Id);
             }
             catch (EndpointNotFoundException)
             {
@@ -73,8 +75,9 @@ namespace ConcreteClient
         {
             try
             {
-                var result = _clientSetup.ProxyChannel.UnregisterClient(_clientSetup.Id);
-                rtbMessages.Text = result.ToString();
+                //var result = _clientSetup.ProxyChannel.UnregisterClient(_clientSetup.Id);
+                //rtbMessages.Text = result.ToString();
+                _clientSetup.ProxyChannel.ActionRequest(ActionType.UnregisterClient, _clientSetup.Id);
             }
             catch (EndpointNotFoundException)
             {
@@ -88,7 +91,7 @@ namespace ConcreteClient
         {
             try
             {
-                _clientSetup.ProxyChannel.UnregisterClient(_clientSetup.Id);
+                _clientSetup.ProxyChannel.ActionRequest(ActionType.UnregisterClient, _clientSetup.Id);
             }
             catch (EndpointNotFoundException){}
             
@@ -96,7 +99,7 @@ namespace ConcreteClient
 
         private void btnTakeActions_Click(object sender, EventArgs e)
         {
-            _clientSetup.ProxyChannel.TakeActions();
+            _clientSetup.ProxyChannel.ActionRequest(ActionType.SampleOperation, _clientSetup.Id);
         }
         
     }

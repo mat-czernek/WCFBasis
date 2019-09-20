@@ -44,10 +44,11 @@
     <Compile Include="Delegates\ServiceCurrentActionDelegate.cs" />
     <Compile Include="Delegates\ServiceSimpleMessageDelegate.cs" />
     <Compile Include="Enums\ActionStatus.cs" />
-    <Compile Include="Enums\OperationReturnType.cs" />
+    <Compile Include="Enums\ActionType.cs" />
+    <Compile Include="Enums\OperationStatus.cs" />
     <Compile Include="ICallbacksApi.cs" />
     <Compile Include="IServiceOperationsApi.cs" />
-    <Compile Include="Models\ActionModel.cs" />
+    <Compile Include="Models\OperationModel.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

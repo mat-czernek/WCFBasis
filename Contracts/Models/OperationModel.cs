@@ -4,7 +4,7 @@ using Contracts.Enums;
 namespace Contracts.Models
 {
     [DataContract(Namespace = "WCFBasis")]
-    public class ActionModel
+    public class OperationModel
     {
         [DataMember]
         public string Name { get; set; }
@@ -12,7 +12,7 @@ namespace Contracts.Models
         [DataMember]
         public int Delay { get; set; }
 
-        [DataMember] 
-        public ActionStatus Status { get; set; } = ActionStatus.Idle;
+        [DataMember]
+        public OperationStatus Status { get; set; } = OperationStatus.Idle;
     }
 }

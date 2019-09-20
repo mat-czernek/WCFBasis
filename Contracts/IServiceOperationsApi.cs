@@ -14,24 +14,7 @@ namespace Contracts
     [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbacksApi))]
     public interface IServiceOperationsApi
     {
-        /// <summary>
-        /// Register new client in WCF service
-        /// </summary>
-        /// <param name="id">Client unique Id</param>
-        [OperationContract]
-        OperationReturnType RegisterClient(Guid id);
-
-        /// <summary>
-        /// Unregister client from WCF service
-        /// </summary>
-        /// <param name="id">Client unique Id</param>
-        [OperationContract]
-        OperationReturnType UnregisterClient(Guid id);
-
         [OperationContract(IsOneWay = true)]
-        void UpdateChannel(Guid id);
-
-        [OperationContract(IsOneWay = true)]
-        void TakeActions();
+        void ActionRequest(ActionType actionType, Guid clientId);
     }
 }
