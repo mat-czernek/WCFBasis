@@ -29,9 +29,9 @@ namespace Service.Actions
                     
                     var sampleOperationAction = new SampleOperationAction(model.ClientId);
 
-                    sampleOperationAction.OnOperationChange += ActionChangeObserver.OnOperationChange;
-                    sampleOperationAction.OnOperationsListChange += ActionChangeObserver.OnOperationsListChange;
-                    sampleOperationAction.OnOperationsCompleted += ActionChangeObserver.OnOperationsCompleted;
+                    sampleOperationAction.OnOperationChange += ActionEventObserver.OnOperationChange;
+                    sampleOperationAction.OnOperationsListChange += ActionEventObserver.OnOperationsListChange;
+                    sampleOperationAction.OnOperationsCompleted += ActionEventObserver.OnOperationsCompleted;
 
                     return sampleOperationAction;
 
@@ -42,7 +42,7 @@ namespace Service.Actions
                     var newClient = new RegisterClientAction(model.ClientId,
                         OperationContext.Current.GetCallbackChannel<ICallbacksApi>());
 
-                    newClient.OnRegistrationSuccess += ActionChangeObserver.OnRegistrationSuccess;
+                    newClient.OnRegistrationSuccess += ActionEventObserver.OnRegistrationSuccess;
 
                     return newClient;
                 }

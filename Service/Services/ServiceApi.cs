@@ -39,7 +39,7 @@ namespace Service.Services
         public ServiceApi(IClientsRepository clientsRepository, 
             IServiceActionsFactory serviceActionsFactory)
         {
-            clientsRepository.StartMaintenance();
+            clientsRepository.StartMonitoring();
             
             _serviceActionsFactory = serviceActionsFactory;
 

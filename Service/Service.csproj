@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions\ActionChangeObserver.cs" />
+    <Compile Include="Actions\ActionEventObserver.cs" />
     <Compile Include="Actions\InvalidAction.cs" />
     <Compile Include="Actions\IServiceAction.cs" />
     <Compile Include="Actions\IServiceActionsFactory.cs" />

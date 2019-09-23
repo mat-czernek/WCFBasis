@@ -12,30 +12,30 @@ namespace Service.Services
 
         public static List<ClientModel> RegisteredClients = new List<ClientModel>();
 
-        private readonly Timer _maintenanceTimer;
+        private readonly Timer _monitoringTimer;
         
         public ClientsRepository()
         {
-            _maintenanceTimer = new Timer(10000);
-            _maintenanceTimer.Elapsed += _maintenanceTimerOnElapsed;
-            _maintenanceTimer.Enabled = true;
-            _maintenanceTimer.AutoReset = true;
-            _maintenanceTimer.Start();
+            _monitoringTimer = new Timer(10000);
+            _monitoringTimer.Elapsed += _clientsMonitoring;
+            _monitoringTimer.Enabled = true;
+            _monitoringTimer.AutoReset = true;
+            _monitoringTimer.Start();
         }
 
-        public void StartMaintenance()
+        public void StartMonitoring()
         {
-            if(!_maintenanceTimer.Enabled)
-                _maintenanceTimer.Start();
+            if(!_monitoringTimer.Enabled)
+                _monitoringTimer.Start();
         }
 
-        public void StopMaintenance()
+        public void StopMonitoring()
         {
-            if(_maintenanceTimer.Enabled)
-                _maintenanceTimer.Stop();
+            if(_monitoringTimer.Enabled)
+                _monitoringTimer.Stop();
         }
 
-        private static void _maintenanceTimerOnElapsed(object sender, ElapsedEventArgs e)
+        private static void _clientsMonitoring(object sender, ElapsedEventArgs e)
         {
             lock (SyncObject)
             {

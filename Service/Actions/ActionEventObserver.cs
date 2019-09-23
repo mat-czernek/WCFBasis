@@ -7,7 +7,7 @@ using Service.Utilities;
 
 namespace Service.Actions
 {
-    public class ActionChangeObserver
+    public static class ActionEventObserver
     {
         public static void OnRegistrationSuccess(Guid clientId)
         {

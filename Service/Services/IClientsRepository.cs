@@ -2,8 +2,8 @@ namespace Service.Services
 {
     public interface IClientsRepository
     {
-        void StartMaintenance();
+        void StartMonitoring();
         
-        void StopMaintenance();
+        void StopMonitoring();
     }
 }
