@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.ServiceModel;
 using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
+using Service.Delegates;
+using Service.Services;
 
 namespace Service.Actions
 {
@@ -36,6 +36,8 @@ namespace Service.Actions
         /// Gets the action status
         /// </summary>
         public ActionStatus Status { get; private set; } = ActionStatus.Idle;
+
+        public event OnRegistrationSuccessDelegate OnRegistrationSuccess;
         
         /// <summary>
         /// Default constructor
@@ -46,6 +48,15 @@ namespace Service.Actions
         { 
             ClientId = clientId;
             _operationContext = operationContext;
+        }
+
+
+        private bool _isAlreadyRegistered(Guid clientId, out int clientIndex)
+        {
+            clientIndex =
+                ClientsRepository.RegisteredClients.FindIndex(client => client.Id == ClientId);
+
+            return clientIndex >= 0;
         }
         
         /// <summary>
@@ -61,9 +72,10 @@ namespace Service.Actions
 
             lock (SyncObject)
             {
-                // client already exists on the list of registered clients
-                if (ServiceOperationsApi.RegisteredClients.FindIndex(client => client.Id == ClientId) >= 0)
+                if(_isAlreadyRegistered(ClientId, out var clientIndex))
                 {
+                    ClientsRepository.RegisteredClients[clientIndex].CallbacksApiChannel = _operationContext;
+                    ClientsRepository.RegisteredClients[clientIndex].LastActivityTime = DateTime.Now;
                     Status = ActionStatus.Completed;
                     return;
                 }
@@ -72,15 +84,17 @@ namespace Service.Actions
                 {
                     Id = ClientId,
                     CallbacksApiChannel = _operationContext,
-                    RegistrationTime = DateTime.Now
+                    RegistrationTime = DateTime.Now,
+                    LastActivityTime = DateTime.Now
                 };
                 
-                ServiceOperationsApi.RegisteredClients.Add(clientModel);
+                ClientsRepository.RegisteredClients.Add(clientModel);
                 
                 Status = ActionStatus.Completed;
                 
                 // send message to client
-                clientModel.CallbacksApiChannel.Message("Client registered successfully!");
+                //clientModel.CallbacksApiChannel.UpdateGeneralStatus("Client registered successfully!");
+                OnRegistrationSuccess?.Invoke(clientModel.Id);
             }
         }
     }

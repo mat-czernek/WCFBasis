@@ -1,8 +1,7 @@
 using System;
-using System.ServiceModel;
-using System.Threading.Tasks;
 using Contracts;
 using Contracts.Enums;
+using Service.Services;
 
 namespace Service.Actions
 {
@@ -54,12 +53,12 @@ namespace Service.Actions
         {
             lock (SyncObject)
             {
-                var clientIndex = ServiceOperationsApi.RegisteredClients.FindIndex(client => client.Id == ClientId);
+                var clientIndex = ClientsRepository.RegisteredClients.FindIndex(client => client.Id == ClientId);
 
                 if (clientIndex >= 0)
                 {
-                    ServiceOperationsApi.RegisteredClients[clientIndex].CallbacksApiChannel = _operationContext;
-                    ServiceOperationsApi.RegisteredClients[clientIndex].LastActivityTime = DateTime.Now;
+                    ClientsRepository.RegisteredClients[clientIndex].CallbacksApiChannel = _operationContext;
+                    ClientsRepository.RegisteredClients[clientIndex].LastActivityTime = DateTime.Now;
                 }
             }
             

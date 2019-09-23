@@ -1,5 +1,7 @@
 ﻿using System;
 using Service;
+using Service.Actions;
+using Service.Services;
 
 namespace ConcreteServiceConsole
 {
@@ -7,7 +9,10 @@ namespace ConcreteServiceConsole
     {
         public static void Main(string[] args)
         {
-            var host = new Host();
+            var host = new Host(new ServiceApi(
+                    new ClientsRepository(), 
+                    new ServiceActionsFactory()
+                ));
             
             host.Open();
 

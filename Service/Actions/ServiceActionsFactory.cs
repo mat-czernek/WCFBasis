@@ -3,18 +3,19 @@ using System.ServiceModel;
 using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
+using Service.Services;
 
 namespace Service.Actions
 {
     public class ServiceActionsFactory : IServiceActionsFactory
     {
         private static readonly object SyncObject = new object();
-        
+
         private bool _isRequestFromRegisteredClient(Guid clientId)
         {
             lock (SyncObject)
             {
-                return ServiceOperationsApi.RegisteredClients.FindAll(client => client.Id == clientId).Count != 0;
+                return ClientsRepository.RegisteredClients.FindAll(client => client.Id == clientId).Count != 0;
             }
         }
         
@@ -24,14 +25,27 @@ namespace Service.Actions
             {
                 case ActionType.SampleOperation:
                 {
-                    if(_isRequestFromRegisteredClient(model.ClientId))
-                        return new SampleOperationAction(model.ClientId);
+                    if (!_isRequestFromRegisteredClient(model.ClientId)) return new InvalidAction();
                     
-                    return new InvalidAction();
+                    var sampleOperationAction = new SampleOperationAction(model.ClientId);
+
+                    sampleOperationAction.OnOperationChange += ActionChangeObserver.OnOperationChange;
+                    sampleOperationAction.OnOperationsListChange += ActionChangeObserver.OnOperationsListChange;
+                    sampleOperationAction.OnOperationsCompleted += ActionChangeObserver.OnOperationsCompleted;
+
+                    return sampleOperationAction;
+
                 }
 
                 case ActionType.RegisterClient:
-                    return new RegisterClientAction(model.ClientId, OperationContext.Current.GetCallbackChannel<ICallbacksApi>());
+                {
+                    var newClient = new RegisterClientAction(model.ClientId,
+                        OperationContext.Current.GetCallbackChannel<ICallbacksApi>());
+
+                    newClient.OnRegistrationSuccess += ActionChangeObserver.OnRegistrationSuccess;
+
+                    return newClient;
+                }
 
                 case ActionType.UnregisterClient:
                 {

@@ -1,4 +1,3 @@
-using System;
 using Contracts.Models;
 
 namespace Contracts.Delegates

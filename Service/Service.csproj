@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\ActionChangeObserver.cs" />
     <Compile Include="Actions\InvalidAction.cs" />
     <Compile Include="Actions\IServiceAction.cs" />
     <Compile Include="Actions\IServiceActionsFactory.cs" />
@@ -47,11 +48,17 @@
     <Compile Include="Actions\ServiceActionsFactory.cs" />
     <Compile Include="Actions\UnregisterClientAction.cs" />
     <Compile Include="Actions\UpdateChannelAction.cs" />
-    <Compile Include="ServiceOperationsApi.cs" />
+    <Compile Include="Delegates\OnOperationChangeDelegate.cs" />
+    <Compile Include="Delegates\OnOperationsCompletedDelegate.cs" />
+    <Compile Include="Delegates\OnOperationsListChangeDelegate.cs" />
+    <Compile Include="Delegates\OnRegistrationSuccessDelegate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Host.cs" />
-    <Compile Include="Services\ProcessOperations.cs" />
-    <Compile Include="Utilities\CollectionsOperations.cs" />
+    <Compile Include="Services\ClientsRepository.cs" />
+    <Compile Include="Services\IClientsRepository.cs" />
+    <Compile Include="Services\SampleOperations.cs" />
+    <Compile Include="Services\ServiceApi.cs" />
+    <Compile Include="Utilities\CollectionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Contracts\Contracts.csproj">

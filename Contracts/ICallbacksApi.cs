@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using Contracts.Delegates;
 using Contracts.Models;
@@ -23,12 +22,12 @@ namespace Contracts
         /// </summary>
         /// <param name="text"></param>
         [OperationContract(IsOneWay = true)]
-        void Message(string text);
+        void UpdateGeneralStatus(string text);
 
         [OperationContract(IsOneWay = true)]
-        void SetCurrentlyProcessedAction(OperationModel operation);
+        void UpdateCurrentOperation(OperationModel operation);
 
         [OperationContract(IsOneWay = true)]
-        void UpdateActionsQueue(List<OperationModel> actions);
+        void UpdateOperationsQueue(List<OperationModel> actions);
     }
 }

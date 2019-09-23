@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ServiceProcess;
 using Service;
+using Service.Actions;
+using Service.Services;
 
 namespace ConcreteService
 {
@@ -19,7 +13,10 @@ namespace ConcreteService
         {
             InitializeComponent();
             
-            _host = new Host();
+            _host = new Host(new ServiceApi(
+                new ClientsRepository(), 
+                new ServiceActionsFactory()
+            ));
         }
 
         protected override void OnStart(string[] args)

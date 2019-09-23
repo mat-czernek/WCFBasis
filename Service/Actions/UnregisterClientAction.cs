@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Contracts;
 using Contracts.Enums;
-using Contracts.Models;
+using Service.Services;
 
 namespace Service.Actions
 {
@@ -54,7 +52,7 @@ namespace Service.Actions
 
             lock (SyncObject)
             {
-                var clientToUnregister = ServiceOperationsApi.RegisteredClients.SingleOrDefault(client => client.Id == ClientId);
+                var clientToUnregister = ClientsRepository.RegisteredClients.SingleOrDefault(client => client.Id == ClientId);
 
                 // client does not exist on the list of registered clients
                 if (clientToUnregister == null)
@@ -63,7 +61,7 @@ namespace Service.Actions
                     return;
                 }
             
-                ServiceOperationsApi.RegisteredClients.Remove(clientToUnregister);
+                ClientsRepository.RegisteredClients.Remove(clientToUnregister);
             }
             
             Status = ActionStatus.Completed;

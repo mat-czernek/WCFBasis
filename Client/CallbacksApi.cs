@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using Contracts;
 using Contracts.Delegates;
@@ -24,17 +22,17 @@ namespace Client
         /// Method displays message from the service
         /// </summary>
         /// <param name="text">String message to be sent by service to client</param>
-        public void Message(string text)
+        public void UpdateGeneralStatus(string text)
         {
             ServiceSimpleMessage?.Invoke(text);
         }
 
-        public void SetCurrentlyProcessedAction(OperationModel operation)
+        public void UpdateCurrentOperation(OperationModel operation)
         {
             ServiceCurrentAction?.Invoke(operation);
         }
 
-        public void UpdateActionsQueue(List<OperationModel> actions)
+        public void UpdateOperationsQueue(List<OperationModel> actions)
         {
             ServiceActionsQueue?.Invoke(actions);
         }

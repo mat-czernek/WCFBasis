@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using Contracts.Delegates;
-using Contracts.Enums;
+﻿using System.ServiceModel;
 using Contracts.Models;
 
 namespace Contracts
@@ -12,7 +8,7 @@ namespace Contracts
     /// All methods may be called by client on service side
     /// </summary>
     [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbacksApi))]
-    public interface IServiceOperationsApi
+    public interface IServiceApi
     {
         [OperationContract(IsOneWay = true)]
         void ActionRequest(ActionModel actionModel);

@@ -7,7 +7,7 @@ namespace Service.Services
     /// <summary>
     /// Sample class that defines time consuming like operations
     /// </summary>
-    public class ProcessOperations
+    public class SampleOperations
     {
         /// <summary>
         /// List of time consuming operations
@@ -17,17 +17,17 @@ namespace Service.Services
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ProcessOperations()
+        public SampleOperations()
         {
             var random = new Random();
             
             Operations = new List<OperationModel>
             {
-                new OperationModel {Delay = random.Next(25000, 45000), Name = "Operation no.1"},
-                new OperationModel {Delay = random.Next(25000, 45000), Name = "Operation no.2"},
-                new OperationModel {Delay = random.Next(25000, 45000), Name = "Operation no.3"},
-                new OperationModel {Delay = random.Next(25000, 45000), Name = "Operation no.4"},
-                new OperationModel {Delay = random.Next(25000, 45000), Name = "Operation no.5"}
+                new OperationModel {Delay = random.Next(3000, 6000), Name = "Operation no.1"},
+                new OperationModel {Delay = random.Next(3000, 6000), Name = "Operation no.2"},
+                new OperationModel {Delay = random.Next(3000, 6000), Name = "Operation no.3"},
+                new OperationModel {Delay = random.Next(3000, 6000), Name = "Operation no.4"},
+                new OperationModel {Delay = random.Next(3000, 6000), Name = "Operation no.5"}
             };
         }
     }

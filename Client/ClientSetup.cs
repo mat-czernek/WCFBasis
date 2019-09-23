@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Net.Security;
 using System.ServiceModel;
 using System.Timers;
 using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
+using Timer = System.Timers.Timer;
 
 namespace Client
 {
@@ -15,21 +17,23 @@ namespace Client
         /// <summary>
         /// Communication channel factory
         /// </summary>
-        private DuplexChannelFactory<IServiceOperationsApi> _channelFactory;
+        private DuplexChannelFactory<IServiceApi> _channelFactory;
 
         /// <summary>
         /// Named pipes configuration
         /// </summary>
         private readonly NetNamedPipeBinding _netNamedPipeBinding;
 
-        private readonly Timer _updateChannelTimer;
-       
         /// <summary>
         /// Communication proxy with service
         /// </summary>
-        public IServiceOperationsApi ProxyChannel => _createProxyChannel();
+        public IServiceApi ProxyChannel => _createProxyChannel();
 
-        private ICallbacksApi _callbackImplementation;
+        private readonly ICallbacksApi _callbackImplementation;
+        
+        public bool IsRegistered { get; protected set; }
+
+        private ServiceStatus _lastServiceStatus = ServiceStatus.Functional;
         
         public Guid Id;
 
@@ -42,32 +46,76 @@ namespace Client
             
             Id = Guid.NewGuid();
 
-            _updateChannelTimer = new Timer(1000);
-            _updateChannelTimer.Elapsed += _onUpdateChannelTimerElapsed;
-            _updateChannelTimer.Enabled = true;
-            _updateChannelTimer.AutoReset = true;
-            _updateChannelTimer.Start();
+            var updateChannelTimer = new Timer(1000);
+            updateChannelTimer.Elapsed += _onUpdateChannelTimerElapsed;
+            updateChannelTimer.Enabled = true;
+            updateChannelTimer.AutoReset = true;
+            updateChannelTimer.Start();
             
             _netNamedPipeBinding = new NetNamedPipeBinding
             {
-                Security = { Mode = NetNamedPipeSecurityMode.Transport },
+                Security = { Mode = NetNamedPipeSecurityMode.Transport, Transport = new NamedPipeTransportSecurity() {ProtectionLevel = ProtectionLevel.EncryptAndSign} },
                 MaxConnections = 10,
                 OpenTimeout = new TimeSpan(0, 0, 30),
                 ReceiveTimeout = new TimeSpan(0, 0, 5),
-                SendTimeout = new TimeSpan(0, 0, 5)
+                SendTimeout = new TimeSpan(0, 0, 5),
+                
             };
+        }
+
+        public void Register()
+        {
+            try
+            {
+                ProxyChannel.ActionRequest(new ActionModel
+                    {ClientId = Id, Type = ActionType.RegisterClient, ExecuteImmediately = true});
+                
+                IsRegistered = true;
+
+                _lastServiceStatus = ServiceStatus.Functional;
+            }
+            catch (EndpointNotFoundException){}
+        }
+
+        public void Unregister()
+        {
+            try
+            {
+                ProxyChannel.ActionRequest(new ActionModel
+                    {ClientId = Id, Type = ActionType.UnregisterClient, ExecuteImmediately = true});
+                
+                IsRegistered = false;
+            }
+            catch (EndpointNotFoundException){}
         }
 
         private void _onUpdateChannelTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            ProxyChannel.ActionRequest(new ActionModel {ClientId = Id, Type = ActionType.UpdateChannel, ExecuteImmediately = true});
+            try
+            {
+                if(_lastServiceStatus == ServiceStatus.Functional)
+                {
+                    ProxyChannel.ActionRequest(new ActionModel
+                        {ClientId = Id, Type = ActionType.UpdateChannel, ExecuteImmediately = true});
+                }
+                else
+                {
+                    this.Register();
+                }
+            }
+            catch (EndpointNotFoundException)
+            {
+                IsRegistered = false;
+                _lastServiceStatus = ServiceStatus.Faulted;
+            }
         }
+        
 
         /// <summary>
         /// Method creates new channel for the current request
         /// </summary>
         /// <returns>Return new communication channel</returns>
-        private IServiceOperationsApi _createProxyChannel()
+        private IServiceApi _createProxyChannel()
         {
             if(_channelFactory == null)
                 _channelFactory = _createChannelFactory();
@@ -107,9 +155,9 @@ namespace Client
         /// <summary>
         /// Methods create the channel factory. Channel factory is used to create communication channels for each request.
         /// </summary>
-        private DuplexChannelFactory<IServiceOperationsApi> _createChannelFactory()
+        private DuplexChannelFactory<IServiceApi> _createChannelFactory()
         {
-            var channelFactory = new DuplexChannelFactory<IServiceOperationsApi>(_callbackImplementation, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
+            var channelFactory = new DuplexChannelFactory<IServiceApi>(_callbackImplementation, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 
             return channelFactory;

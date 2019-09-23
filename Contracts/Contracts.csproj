@@ -46,8 +46,9 @@
     <Compile Include="Enums\ActionStatus.cs" />
     <Compile Include="Enums\ActionType.cs" />
     <Compile Include="Enums\OperationStatus.cs" />
+    <Compile Include="Enums\ServiceStatus.cs" />
     <Compile Include="ICallbacksApi.cs" />
-    <Compile Include="IServiceOperationsApi.cs" />
+    <Compile Include="IServiceApi.cs" />
     <Compile Include="Models\ActionModel.cs" />
     <Compile Include="Models\OperationModel.cs" />
     <Compile Include="Models\ClientModel.cs" />

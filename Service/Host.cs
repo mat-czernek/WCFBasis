@@ -1,4 +1,5 @@
 using System;
+using System.Net.Security;
 using System.ServiceModel;
 using Contracts;
 
@@ -24,23 +25,24 @@ namespace Service
         /// </summary>
         public bool IsOpened { get; protected set; } = false;
 
-        private readonly IServiceOperationsApi _operationsApi;
+        
+        private readonly IServiceApi _serviceApi;
 
         /// <summary>
         /// Default constructor. Initiates the named pipes configuration and service host instance
         /// </summary>
-        public Host()
+        public Host(IServiceApi serviceApi)
         {
             _netNamedPipeBinding = new NetNamedPipeBinding
             {
-                Security = {Mode = NetNamedPipeSecurityMode.Transport},
+                Security = { Mode = NetNamedPipeSecurityMode.Transport, Transport = new NamedPipeTransportSecurity() {ProtectionLevel = ProtectionLevel.EncryptAndSign} },
                 MaxConnections = 10,
                 OpenTimeout = new TimeSpan(0, 0, 30),
                 ReceiveTimeout = new TimeSpan(0, 0, 10),
                 SendTimeout = new TimeSpan(0, 0, 5)
             };
 
-            _operationsApi = ServiceOperationsApi.Instance;
+            _serviceApi = serviceApi;
 
             _serviceHost = _initalizeServiceHost();
         }
@@ -51,8 +53,8 @@ namespace Service
         /// <returns>Returns the service host instance</returns>
         private ServiceHost _initalizeServiceHost()
         {
-            var serviceHost = new ServiceHost(_operationsApi, new Uri("net.pipe://localhost"));
-            serviceHost.AddServiceEndpoint(typeof(IServiceOperationsApi), _netNamedPipeBinding, "WCFBasis");
+            var serviceHost = new ServiceHost(_serviceApi, new Uri("net.pipe://localhost"));
+            serviceHost.AddServiceEndpoint(typeof(IServiceApi), _netNamedPipeBinding, "WCFBasis");
             serviceHost.Faulted += _onHostFailure;
             serviceHost.Opened += _onHostOpened;
             

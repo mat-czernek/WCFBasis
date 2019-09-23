@@ -29,14 +29,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.tbClientName = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnRegister = new System.Windows.Forms.Button();
             this.btnUnregister = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.rtbMessages = new System.Windows.Forms.RichTextBox();
-            this.tmrChannerlUpdate = new System.Windows.Forms.Timer(this.components);
             this.btnTakeActions = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.lbActionsInQueue = new System.Windows.Forms.ListBox();
@@ -48,7 +46,6 @@
             // tbClientName
             // 
             this.tbClientName.Location = new System.Drawing.Point(6, 22);
-            this.tbClientName.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.tbClientName.Name = "tbClientName";
             this.tbClientName.ReadOnly = true;
             this.tbClientName.Size = new System.Drawing.Size(361, 23);
@@ -58,9 +55,7 @@
             // 
             this.groupBox1.Controls.Add(this.tbClientName);
             this.groupBox1.Location = new System.Drawing.Point(9, 14);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupBox1.Size = new System.Drawing.Size(373, 55);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
@@ -69,9 +64,8 @@
             // btnRegister
             // 
             this.btnRegister.Location = new System.Drawing.Point(9, 75);
-            this.btnRegister.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnRegister.Name = "btnRegister";
-            this.btnRegister.Size = new System.Drawing.Size(88, 37);
+            this.btnRegister.Size = new System.Drawing.Size(87, 37);
             this.btnRegister.TabIndex = 2;
             this.btnRegister.Text = "Register";
             this.btnRegister.UseVisualStyleBackColor = true;
@@ -80,9 +74,8 @@
             // btnUnregister
             // 
             this.btnUnregister.Location = new System.Drawing.Point(289, 75);
-            this.btnUnregister.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnUnregister.Name = "btnUnregister";
-            this.btnUnregister.Size = new System.Drawing.Size(88, 37);
+            this.btnUnregister.Size = new System.Drawing.Size(87, 37);
             this.btnUnregister.TabIndex = 3;
             this.btnUnregister.Text = "Un-register";
             this.btnUnregister.UseVisualStyleBackColor = true;
@@ -92,9 +85,7 @@
             // 
             this.groupBox2.Controls.Add(this.rtbMessages);
             this.groupBox2.Location = new System.Drawing.Point(9, 267);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupBox2.Size = new System.Drawing.Size(373, 128);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
@@ -106,21 +97,14 @@
             this.rtbMessages.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular,
                 System.Drawing.GraphicsUnit.Point, ((byte) (0)));
             this.rtbMessages.Location = new System.Drawing.Point(6, 22);
-            this.rtbMessages.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.rtbMessages.Name = "rtbMessages";
             this.rtbMessages.Size = new System.Drawing.Size(361, 93);
             this.rtbMessages.TabIndex = 0;
             this.rtbMessages.Text = "";
             // 
-            // tmrChannerlUpdate
-            // 
-            this.tmrChannerlUpdate.Enabled = true;
-            this.tmrChannerlUpdate.Interval = 40000;
-            // 
             // btnTakeActions
             // 
             this.btnTakeActions.Location = new System.Drawing.Point(150, 75);
-            this.btnTakeActions.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnTakeActions.Name = "btnTakeActions";
             this.btnTakeActions.Size = new System.Drawing.Size(94, 37);
             this.btnTakeActions.TabIndex = 5;
@@ -151,14 +135,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(394, 408);
+            this.ClientSize = new System.Drawing.Size(394, 407);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnTakeActions);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btnUnregister);
             this.Controls.Add(this.btnRegister);
             this.Controls.Add(this.groupBox1);
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "Form1";
             this.Text = "WCF Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -177,7 +160,6 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnUnregister;
         private System.Windows.Forms.RichTextBox rtbMessages;
-        private System.Windows.Forms.Timer tmrChannerlUpdate;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ListBox lbActionsInQueue;
         private System.Windows.Forms.Button btnTakeActions;
