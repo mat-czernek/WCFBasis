@@ -11,28 +11,16 @@ namespace Service.Actions
     {
         private static readonly object SyncObject = new object();
 
-        private bool _isRequestFromRegisteredClient(Guid clientId)
-        {
-            lock (SyncObject)
-            {
-                return ClientsRepository.RegisteredClients.FindAll(client => client.Id == clientId).Count != 0;
-            }
-        }
-        
         public IServiceAction Create(ActionModel model)
         {
             switch (model.Type)
             {
                 case ActionType.SampleOperation:
                 {
-                    if (!_isRequestFromRegisteredClient(model.ClientId)) return new InvalidAction();
+                    if (!ClientsRepository.IsRegisteredClient(model.ClientId)) return new InvalidAction();
                     
                     var sampleOperationAction = new SampleOperationAction(model.ClientId);
-
-                    sampleOperationAction.OnOperationChange += ActionEventObserver.OnOperationChange;
-                    sampleOperationAction.OnOperationsListChange += ActionEventObserver.OnOperationsListChange;
-                    sampleOperationAction.OnOperationsCompleted += ActionEventObserver.OnOperationsCompleted;
-
+                    
                     return sampleOperationAction;
 
                 }
@@ -42,14 +30,12 @@ namespace Service.Actions
                     var newClient = new RegisterClientAction(model.ClientId,
                         OperationContext.Current.GetCallbackChannel<ICallbacksApi>());
 
-                    newClient.OnRegistrationSuccess += ActionEventObserver.OnRegistrationSuccess;
-
                     return newClient;
                 }
 
                 case ActionType.UnregisterClient:
                 {
-                    if(_isRequestFromRegisteredClient(model.ClientId))
+                    if(ClientsRepository.IsRegisteredClient(model.ClientId))
                         return new UnregisterClientAction(model.ClientId);
                     
                     return new InvalidAction();
@@ -57,7 +43,7 @@ namespace Service.Actions
 
                 case ActionType.UpdateChannel:
                 {
-                    if(_isRequestFromRegisteredClient(model.ClientId))
+                    if(ClientsRepository.IsRegisteredClient(model.ClientId))
                     {
                         return new UpdateChannelAction(model.ClientId,
                             OperationContext.Current.GetCallbackChannel<ICallbacksApi>());

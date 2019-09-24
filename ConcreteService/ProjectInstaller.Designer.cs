@@ -33,10 +33,9 @@
             // 
             // WCFServiceProcessInstaller
             // 
-            this.WCFServiceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
+            this.WCFServiceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalService;
             this.WCFServiceProcessInstaller.Password = null;
             this.WCFServiceProcessInstaller.Username = null;
-            this.WCFServiceProcessInstaller.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.WCFServiceProcessInstaller_AfterInstall);
             // 
             // WCFServiceInstaller
             // 
@@ -45,10 +44,8 @@
             // 
             // ProjectInstaller
             // 
-            this.Installers.AddRange(new System.Configuration.Install.Installer[] {
-            this.WCFServiceProcessInstaller,
-            this.WCFServiceInstaller});
-
+            this.Installers.AddRange(new System.Configuration.Install.Installer[]
+                {this.WCFServiceProcessInstaller, this.WCFServiceInstaller});
         }
 
         #endregion

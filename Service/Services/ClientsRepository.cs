@@ -8,42 +8,51 @@ namespace Service.Services
 {
     public class ClientsRepository : IClientsRepository
     {
-        private static readonly object SyncObject = new object();
+        private static readonly object ThreadSyncObject = new object();
 
         public static List<ClientModel> RegisteredClients = new List<ClientModel>();
 
-        private readonly Timer _monitoringTimer;
+        private readonly Timer _monitorInactiveClients;
+
+        public static bool IsRegisteredClient(Guid clientId)
+        {
+            lock (ThreadSyncObject)
+            {
+                var concreteClient = RegisteredClients.SingleOrDefault(client => client.Id == clientId);
+                
+                return concreteClient != null;
+            }
+            
+        }
         
         public ClientsRepository()
         {
-            _monitoringTimer = new Timer(10000);
-            _monitoringTimer.Elapsed += _clientsMonitoring;
-            _monitoringTimer.Enabled = true;
-            _monitoringTimer.AutoReset = true;
-            _monitoringTimer.Start();
+            _monitorInactiveClients = new Timer(10000);
+            _monitorInactiveClients.Elapsed += _removeInactiveClients;
+            _monitorInactiveClients.Enabled = true;
+            _monitorInactiveClients.AutoReset = true;
+            _monitorInactiveClients.Start();
         }
 
         public void StartMonitoring()
         {
-            if(!_monitoringTimer.Enabled)
-                _monitoringTimer.Start();
+            if(!_monitorInactiveClients.Enabled)
+                _monitorInactiveClients.Start();
         }
 
         public void StopMonitoring()
         {
-            if(_monitoringTimer.Enabled)
-                _monitoringTimer.Stop();
+            if(_monitorInactiveClients.Enabled)
+                _monitorInactiveClients.Stop();
         }
 
-        private static void _clientsMonitoring(object sender, ElapsedEventArgs e)
+        private static void _removeInactiveClients(object sender, ElapsedEventArgs e)
         {
-            lock (SyncObject)
+            lock (ThreadSyncObject)
             {
-                // find inactive clients
                 var inactiveClients = RegisteredClients
                     .FindAll(client => (DateTime.Now - client.LastActivityTime).Seconds >= 15);
                 
-                // remove inactive clients
                 RegisteredClients = RegisteredClients.Except(inactiveClients).ToList();
             }
         }

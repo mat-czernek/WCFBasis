@@ -7,13 +7,13 @@ namespace ConcreteService
 {
     public partial class WCFBasisService : ServiceBase
     {
-        private readonly Host _host;
+        private readonly WcfServiceHost _wcfServiceHost;
         
         public WCFBasisService()
         {
             InitializeComponent();
             
-            _host = new Host(new ServiceApi(
+            _wcfServiceHost = new WcfServiceHost(new ServiceApi(
                 new ClientsRepository(), 
                 new ServiceActionsFactory()
             ));
@@ -21,12 +21,12 @@ namespace ConcreteService
 
         protected override void OnStart(string[] args)
         {
-            _host.Open();
+            _wcfServiceHost.Open();
         }
 
         protected override void OnStop()
         {
-            _host.Close();
+            _wcfServiceHost.Close();
         }
     }
 }

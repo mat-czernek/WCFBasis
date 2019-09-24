@@ -9,7 +9,7 @@ namespace ConcreteServiceConsole
     {
         public static void Main(string[] args)
         {
-            var host = new Host(new ServiceApi(
+            var host = new WcfServiceHost(new ServiceApi(
                     new ClientsRepository(), 
                     new ServiceActionsFactory()
                 ));

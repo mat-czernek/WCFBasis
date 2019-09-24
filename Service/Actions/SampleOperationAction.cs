@@ -2,9 +2,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using Contracts.Enums;
-using Service.Delegates;
+using Service.Notifications;
 using Service.Services;
-using Service.Utilities;
 
 namespace Service.Actions
 {
@@ -20,12 +19,6 @@ namespace Service.Actions
         
         public Guid ClientId { get; }
 
-        public event OnOperationChangeDelegate OnOperationChange;
-
-        public event OnOperationsListChangeDelegate OnOperationsListChange;
-
-        public event OnOperationsCompletedDelegate OnOperationsCompleted;
-        
         public SampleOperationAction(Guid clientId)
         {
             ClientId = clientId;
@@ -38,20 +31,21 @@ namespace Service.Actions
             
             var processOperations = new SampleOperations();
 
-            OnOperationsListChange?.Invoke(processOperations.Operations);
+            ClientNotificationFactory.OperationsQueueUpdate(processOperations.Operations).NotifyAll();
             
             foreach (var operation in processOperations.Operations)
             {
-                OnOperationChange?.Invoke(operation);
+                ClientNotificationFactory.CurrentOperationUpdate(operation).NotifyAll();
                 
                 Thread.Sleep(operation.Delay);
                 
                 operation.Status = OperationStatus.Completed;
                 
-                OnOperationsListChange?.Invoke(processOperations.Operations.FindAll(op => op.Status != OperationStatus.Completed).ToList());
+                ClientNotificationFactory.OperationsQueueUpdate(processOperations.Operations
+                    .FindAll(op => op.Status != OperationStatus.Completed).ToList()).NotifyAll();
             }
             
-            OnOperationsCompleted?.Invoke();
+            ClientNotificationFactory.GeneralNotification("All operations have been completed successfully!").NotifyAll();
 
             Status = ActionStatus.Completed;
         }

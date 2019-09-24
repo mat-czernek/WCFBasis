@@ -5,24 +5,23 @@ using Contracts;
 
 namespace Service
 {
-    /// <summary>
-    /// Class creates instance of the WCF service
-    /// </summary>
-    public class Host
+    public class WcfServiceHost
     {
-        private ServiceHost _serviceHost;
+        private ServiceHost _serviceHostInstance;
         
-        private readonly NetNamedPipeBinding _netNamedPipeBinding;
-        
-        public bool IsOpened { get; protected set; } = false;
-        
+        private readonly NetNamedPipeBinding _serviceHostBinding;
+
         private readonly IServiceApi _serviceApi;
         
-        public Host(IServiceApi serviceApi)
+        public WcfServiceHost(IServiceApi serviceApi)
         {
-            _netNamedPipeBinding = new NetNamedPipeBinding
+            _serviceHostBinding = new NetNamedPipeBinding
             {
-                Security = { Mode = NetNamedPipeSecurityMode.Transport, Transport = new NamedPipeTransportSecurity() {ProtectionLevel = ProtectionLevel.EncryptAndSign} },
+                Security =
+                {
+                    Mode = NetNamedPipeSecurityMode.Transport,
+                    Transport = new NamedPipeTransportSecurity() {ProtectionLevel = ProtectionLevel.EncryptAndSign}
+                },
                 MaxConnections = 10,
                 OpenTimeout = new TimeSpan(0, 0, 30),
                 ReceiveTimeout = new TimeSpan(0, 0, 10),
@@ -31,14 +30,14 @@ namespace Service
 
             _serviceApi = serviceApi;
 
-            _serviceHost = _initalizeServiceHost();
+            _serviceHostInstance = _initalizeServiceHost();
         }
 
 
         private ServiceHost _initalizeServiceHost()
         {
             var serviceHost = new ServiceHost(_serviceApi, new Uri("net.pipe://localhost"));
-            serviceHost.AddServiceEndpoint(typeof(IServiceApi), _netNamedPipeBinding, "WCFBasis");
+            serviceHost.AddServiceEndpoint(typeof(IServiceApi), _serviceHostBinding, "WCFBasis");
             serviceHost.Faulted += _onHostFailure;
             serviceHost.Opened += _onHostOpened;
             
@@ -47,28 +46,28 @@ namespace Service
         
         private void _closeServiceHost()
         {
-            if (_serviceHost == null) return;
+            if (_serviceHostInstance == null) return;
             
-            _serviceHost.Abort();
-            _serviceHost.Close();
-            _serviceHost = null;
+            _serviceHostInstance.Abort();
+            _serviceHostInstance.Close();
+            _serviceHostInstance = null;
         }
         
         private void _onHostFailure(object sender, EventArgs e)
         {
             _closeServiceHost();
 
-            _serviceHost = _initalizeServiceHost();
+            _serviceHostInstance = _initalizeServiceHost();
         }
         
         private void _onHostOpened(object sender, EventArgs e)
         {
-            IsOpened = true;
+            
         }
         
         public void Open()
         {
-            _serviceHost.Open();
+            _serviceHostInstance.Open();
         }
         
         public void Close()

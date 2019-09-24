@@ -2,7 +2,7 @@ using System;
 using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
-using Service.Delegates;
+using Service.Notifications;
 using Service.Services;
 
 namespace Service.Actions
@@ -37,8 +37,6 @@ namespace Service.Actions
         /// </summary>
         public ActionStatus Status { get; private set; } = ActionStatus.Idle;
 
-        public event OnRegistrationSuccessDelegate OnRegistrationSuccess;
-        
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -77,6 +75,9 @@ namespace Service.Actions
                     ClientsRepository.RegisteredClients[clientIndex].CallbacksApiChannel = _operationContext;
                     ClientsRepository.RegisteredClients[clientIndex].LastActivityTime = DateTime.Now;
                     Status = ActionStatus.Completed;
+                    
+                    ClientNotificationFactory.GeneralNotification("Already registered.")
+                        .NotifySingle(ClientId);
                     return;
                 }
 
@@ -92,9 +93,8 @@ namespace Service.Actions
                 
                 Status = ActionStatus.Completed;
                 
-                // send message to client
-                //clientModel.CallbacksApiChannel.UpdateGeneralStatus("Client registered successfully!");
-                OnRegistrationSuccess?.Invoke(clientModel.Id);
+                ClientNotificationFactory.GeneralNotification("Client registered successfully")
+                    .NotifySingle(ClientId);
             }
         }
     }

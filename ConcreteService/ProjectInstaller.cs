@@ -10,10 +10,5 @@ namespace ConcreteService
         {
             InitializeComponent();
         }
-
-        private void WCFServiceProcessInstaller_AfterInstall(object sender, InstallEventArgs e)
-        {
-
-        }
     }
 }
