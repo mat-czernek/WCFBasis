@@ -9,10 +9,10 @@ namespace ConcreteServiceConsole
     {
         public static void Main(string[] args)
         {
-            var host = new WcfServiceHost(new ServiceApi(
-                    new ClientsRepository(), 
-                    new ServiceActionsFactory()
-                ));
+            var clientsRepository = new ClientsRepository();
+            var actionsHandler = new ServiceActionsHandler(clientsRepository);
+            
+            var host = new WcfServiceHost(new ServiceContract(actionsHandler));
             
             host.Open();
 

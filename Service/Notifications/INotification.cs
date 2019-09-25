@@ -2,9 +2,9 @@ using System;
 
 namespace Service.Notifications
 {
-    public interface IClientNotification
+    public interface INotification
     {
-        void NotifySingle(Guid clientId);
+        void NotifyById(Guid id);
 
         void NotifyAll();
     }

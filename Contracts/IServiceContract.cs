@@ -7,8 +7,8 @@ namespace Contracts
     /// Interface defines contract between WCF service and WCF client
     /// All methods may be called by client on service side
     /// </summary>
-    [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbacksApi))]
-    public interface IServiceApi
+    [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(IClientCallbackContract))]
+    public interface IServiceContract
     {
         [OperationContract(IsOneWay = true)]
         void ActionRequest(ActionModel actionModel);

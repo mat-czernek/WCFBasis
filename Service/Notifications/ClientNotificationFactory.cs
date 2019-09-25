@@ -1,23 +1,19 @@
-using System.Collections.Generic;
-using Contracts.Models;
+using Service.Services;
 
 namespace Service.Notifications
 {
-    internal static class ClientNotificationFactory
+    public class ClientNotificationFactory
     {
-        public static IClientNotification GeneralNotification(string message)
-        {
-            return new GeneralMessageNotification(message);
-        }
+        private readonly IClientsRepository _clientsRepository;
 
-        public static IClientNotification OperationsQueueUpdate(List<OperationModel> operations)
+        public ClientNotificationFactory(IClientsRepository clientsRepository)
         {
-            return new OperationsQueueNotification(operations);
+            _clientsRepository = clientsRepository;
         }
-
-        public static IClientNotification CurrentOperationUpdate(OperationModel operation)
+        
+        public INotification CreateGeneralNotification(string message)
         {
-            return new CurrentOperationNotification(operation);
+            return new GeneralNotification(_clientsRepository, message);
         }
     }
 }

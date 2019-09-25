@@ -13,10 +13,10 @@ namespace ConcreteService
         {
             InitializeComponent();
             
-            _wcfServiceHost = new WcfServiceHost(new ServiceApi(
-                new ClientsRepository(), 
-                new ServiceActionsFactory()
-            ));
+            var clientsRepository = new ClientsRepository();
+            var actionsHandler = new ServiceActionsHandler(clientsRepository);
+            
+            _wcfServiceHost = new WcfServiceHost(new ServiceContract(actionsHandler));
         }
 
         protected override void OnStart(string[] args)

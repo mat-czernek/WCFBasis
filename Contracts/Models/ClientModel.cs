@@ -8,26 +8,17 @@ namespace Contracts.Models
     /// Registration is required to execute methods on client side by service - callbacks
     /// </summary>
     [DataContract(Namespace = "WCFBasis")]
-    public class ClientModel
+    public class ClientModel : IClientModel
     {
-        /// <summary>
-        /// Client unique identifier
-        /// </summary>
         [DataMember]
-        public Guid Id;
+        public Guid Id { get; set; }
 
-        /// <summary>
-        /// Callback communication channel used to executes method on client side by service
-        /// </summary>
         [DataMember]
-        public ICallbacksApi CallbacksApiChannel;
+        public IClientCallbackContract CallbackChannel { get; set; }
 
-        /// <summary>
-        /// Client registration timestamp
-        /// </summary>
         [DataMember]
-        public DateTime RegistrationTime;
+        public DateTime RegistrationTime { get; set; }
 
-        public DateTime LastActivityTime = DateTime.MinValue;
+        public DateTime LastActivityTime { get; set; } = DateTime.MinValue;
     }
 }

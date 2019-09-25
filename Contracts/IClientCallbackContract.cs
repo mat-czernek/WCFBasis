@@ -9,7 +9,7 @@ namespace Contracts
     /// Interface defines methods implemented on WCF client side that could be executed by WCF service
     /// </summary>
     [ServiceContract(SessionMode = SessionMode.Required)]
-    public interface ICallbacksApi
+    public interface IClientCallbackContract
     {
         ServiceSimpleMessageDelegate ServiceSimpleMessage { get; set; }
         
@@ -25,9 +25,9 @@ namespace Contracts
         void UpdateGeneralStatus(string text);
 
         [OperationContract(IsOneWay = true)]
-        void UpdateCurrentOperation(OperationModel operation);
+        void UpdateCurrentOperation(DelayedOperationModel delayedOperation);
 
         [OperationContract(IsOneWay = true)]
-        void UpdateOperationsQueue(List<OperationModel> actions);
+        void UpdateOperationsQueue(List<DelayedOperationModel> actions);
     }
 }

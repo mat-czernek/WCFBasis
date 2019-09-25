@@ -2,5 +2,5 @@ using Contracts.Models;
 
 namespace Contracts.Delegates
 {
-    public delegate void ServiceCurrentActionDelegate(OperationModel operation);
+    public delegate void ServiceCurrentActionDelegate(DelayedOperationModel delayedOperation);
 }

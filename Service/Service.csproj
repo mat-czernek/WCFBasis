@@ -41,24 +41,21 @@
   <ItemGroup>
     <Compile Include="Actions\InvalidAction.cs" />
     <Compile Include="Actions\IServiceAction.cs" />
-    <Compile Include="Actions\IServiceActionsFactory.cs" />
+    <Compile Include="Actions\IServiceActionsHandler.cs" />
     <Compile Include="Actions\RegisterClientAction.cs" />
-    <Compile Include="Actions\SampleOperationAction.cs" />
-    <Compile Include="Actions\ServiceActionsFactory.cs" />
+    <Compile Include="Actions\DelayedOperationAction.cs" />
+    <Compile Include="Actions\ServiceActionsHandler.cs" />
     <Compile Include="Actions\UnregisterClientAction.cs" />
     <Compile Include="Actions\UpdateChannelAction.cs" />
-    <Compile Include="Notifications\CurrentOperationNotification.cs" />
-    <Compile Include="Notifications\GeneralMessageNotification.cs" />
-    <Compile Include="Notifications\IClientNotification.cs" />
     <Compile Include="Notifications\ClientNotificationFactory.cs" />
-    <Compile Include="Notifications\OperationsQueueNotification.cs" />
+    <Compile Include="Notifications\GeneralNotification.cs" />
+    <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WcfServiceHost.cs" />
     <Compile Include="Services\ClientsRepository.cs" />
     <Compile Include="Services\IClientsRepository.cs" />
-    <Compile Include="Services\SampleOperations.cs" />
-    <Compile Include="Services\ServiceApi.cs" />
-    <Compile Include="Utilities\CollectionExtensions.cs" />
+    <Compile Include="Services\DelayedOperations.cs" />
+    <Compile Include="Services\ServiceContract.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Contracts\Contracts.csproj">

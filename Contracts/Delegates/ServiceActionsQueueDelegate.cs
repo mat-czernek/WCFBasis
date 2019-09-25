@@ -3,5 +3,5 @@ using Contracts.Models;
 
 namespace Contracts.Delegates
 {
-    public delegate void ServiceActionsQueueDelegate(List<OperationModel> actions);
+    public delegate void ServiceActionsQueueDelegate(List<DelayedOperationModel> actions);
 }

@@ -11,9 +11,9 @@ namespace Service
         
         private readonly NetNamedPipeBinding _serviceHostBinding;
 
-        private readonly IServiceApi _serviceApi;
+        private readonly IServiceContract _serviceContract;
         
-        public WcfServiceHost(IServiceApi serviceApi)
+        public WcfServiceHost(IServiceContract serviceContract)
         {
             _serviceHostBinding = new NetNamedPipeBinding
             {
@@ -28,7 +28,7 @@ namespace Service
                 SendTimeout = new TimeSpan(0, 0, 5)
             };
 
-            _serviceApi = serviceApi;
+            _serviceContract = serviceContract;
 
             _serviceHostInstance = _initalizeServiceHost();
         }
@@ -36,8 +36,8 @@ namespace Service
 
         private ServiceHost _initalizeServiceHost()
         {
-            var serviceHost = new ServiceHost(_serviceApi, new Uri("net.pipe://localhost"));
-            serviceHost.AddServiceEndpoint(typeof(IServiceApi), _serviceHostBinding, "WCFBasis");
+            var serviceHost = new ServiceHost(_serviceContract, new Uri("net.pipe://localhost"));
+            serviceHost.AddServiceEndpoint(typeof(IServiceContract), _serviceHostBinding, "WCFBasis");
             serviceHost.Faulted += _onHostFailure;
             serviceHost.Opened += _onHostOpened;
             

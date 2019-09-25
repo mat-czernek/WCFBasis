@@ -13,18 +13,18 @@ namespace ConcreteClient
     {
         private readonly ClientSetup _clientSetup;
 
-        private readonly ICallbacksApi _callbacksApi = new CallbacksApi();
+        private readonly IClientCallbackContract _clientCallbackContract = new ClientCallbackContract();
         
         
         public Form1()
         {
             InitializeComponent();
 
-            _clientSetup = new ClientSetup(_callbacksApi);
+            _clientSetup = new ClientSetup(_clientCallbackContract);
 
-            _callbacksApi.ServiceSimpleMessage += _onSimpleMessageFromService;
-            _callbacksApi.ServiceActionsQueue += _onServiceActionQueue;
-            _callbacksApi.ServiceCurrentAction += _onServiceCurrentAction;
+            _clientCallbackContract.ServiceSimpleMessage += _onSimpleMessageFromService;
+            _clientCallbackContract.ServiceActionsQueue += _onServiceActionQueue;
+            _clientCallbackContract.ServiceCurrentAction += _onServiceCurrentAction;
 
             tbClientName.Text = _clientSetup.Id.ToString();
         }
@@ -34,12 +34,12 @@ namespace ConcreteClient
             rtbMessages.Text = text;
         }
 
-        private void _onServiceCurrentAction(OperationModel operation)
+        private void _onServiceCurrentAction(DelayedOperationModel delayedOperation)
         {
-            rtbMessages.Text = $"Currently processed action name: {operation.Name}";
+            rtbMessages.Text = $"Currently processed action name: {delayedOperation.Name}";
         }
 
-        private void _onServiceActionQueue(List<OperationModel> actions)
+        private void _onServiceActionQueue(List<DelayedOperationModel> actions)
         {
             lbActionsInQueue.Items.Clear();
 

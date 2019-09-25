@@ -17,7 +17,7 @@ namespace Client
         /// <summary>
         /// Communication channel factory
         /// </summary>
-        private DuplexChannelFactory<IServiceApi> _channelFactory;
+        private DuplexChannelFactory<IServiceContract> _channelFactory;
 
         /// <summary>
         /// Named pipes configuration
@@ -27,9 +27,9 @@ namespace Client
         /// <summary>
         /// Communication proxy with service
         /// </summary>
-        public IServiceApi ProxyChannel => _createProxyChannel();
+        public IServiceContract ProxyChannel => _createProxyChannel();
 
-        private readonly ICallbacksApi _callbackImplementation;
+        private readonly IClientCallbackContract _callbackImplementation;
         
         public bool IsRegistered { get; protected set; }
 
@@ -40,7 +40,7 @@ namespace Client
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ClientSetup(ICallbacksApi callbackImplementation)
+        public ClientSetup(IClientCallbackContract callbackImplementation)
         {
             _callbackImplementation = callbackImplementation;
             
@@ -115,7 +115,7 @@ namespace Client
         /// Method creates new channel for the current request
         /// </summary>
         /// <returns>Return new communication channel</returns>
-        private IServiceApi _createProxyChannel()
+        private IServiceContract _createProxyChannel()
         {
             if(_channelFactory == null)
                 _channelFactory = _createChannelFactory();
@@ -155,9 +155,9 @@ namespace Client
         /// <summary>
         /// Methods create the channel factory. Channel factory is used to create communication channels for each request.
         /// </summary>
-        private DuplexChannelFactory<IServiceApi> _createChannelFactory()
+        private DuplexChannelFactory<IServiceContract> _createChannelFactory()
         {
-            var channelFactory = new DuplexChannelFactory<IServiceApi>(_callbackImplementation, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
+            var channelFactory = new DuplexChannelFactory<IServiceContract>(_callbackImplementation, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 
             return channelFactory;

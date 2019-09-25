@@ -10,11 +10,9 @@ namespace Service.Services
     {
         private static readonly object ThreadSyncObject = new object();
 
-        public static List<ClientModel> RegisteredClients = new List<ClientModel>();
+        public List<IClientModel> RegisteredClients { get; private set; }
 
-        private readonly Timer _monitorInactiveClients;
-
-        public static bool IsRegisteredClient(Guid clientId)
+        public bool IsRegisteredClient(Guid clientId)
         {
             lock (ThreadSyncObject)
             {
@@ -27,26 +25,67 @@ namespace Service.Services
         
         public ClientsRepository()
         {
-            _monitorInactiveClients = new Timer(10000);
-            _monitorInactiveClients.Elapsed += _removeInactiveClients;
-            _monitorInactiveClients.Enabled = true;
-            _monitorInactiveClients.AutoReset = true;
-            _monitorInactiveClients.Start();
+            RegisteredClients = new List<IClientModel>();
+            
+            var monitorInactiveClients = new Timer(10000);
+            monitorInactiveClients.Elapsed += _removeInactiveClients;
+            monitorInactiveClients.Enabled = true;
+            monitorInactiveClients.AutoReset = true;
+            monitorInactiveClients.Start();
         }
 
-        public void StartMonitoring()
+
+
+        public void Insert(IClientModel model)
         {
-            if(!_monitorInactiveClients.Enabled)
-                _monitorInactiveClients.Start();
+            if(model == null) return;
+            
+            if(model.Id == Guid.Empty) return;
+            
+            model.RegistrationTime = DateTime.Now;
+            model.LastActivityTime = DateTime.Now;
+
+            lock (ThreadSyncObject)
+            {
+                RegisteredClients.Add(model);
+            }
         }
 
-        public void StopMonitoring()
+
+        public void Delete(Guid id)
         {
-            if(_monitorInactiveClients.Enabled)
-                _monitorInactiveClients.Stop();
+            if(id == Guid.Empty) return;
+            
+            lock (ThreadSyncObject)
+            {
+                var clientToDelete = RegisteredClients.SingleOrDefault(client => client.Id == id);
+                
+                if (clientToDelete == null) return;
+                
+                RegisteredClients.Remove(clientToDelete);
+            }
         }
 
-        private static void _removeInactiveClients(object sender, ElapsedEventArgs e)
+
+        public void Update(IClientModel model)
+        {
+            if(model == null) return;
+            
+            if(model.Id == Guid.Empty) return;
+            
+            lock (ThreadSyncObject)
+            {
+                var clientToUpdate = RegisteredClients.SingleOrDefault(client => client.Id == model.Id);
+                
+                if(clientToUpdate == null) return;
+
+                clientToUpdate.CallbackChannel = model.CallbackChannel;
+                clientToUpdate.LastActivityTime = model.LastActivityTime;
+            }
+        }
+
+
+        private void _removeInactiveClients(object sender, ElapsedEventArgs e)
         {
             lock (ThreadSyncObject)
             {

@@ -47,10 +47,11 @@
     <Compile Include="Enums\ActionType.cs" />
     <Compile Include="Enums\OperationStatus.cs" />
     <Compile Include="Enums\ServiceStatus.cs" />
-    <Compile Include="ICallbacksApi.cs" />
-    <Compile Include="IServiceApi.cs" />
+    <Compile Include="IClientCallbackContract.cs" />
+    <Compile Include="IServiceContract.cs" />
     <Compile Include="Models\ActionModel.cs" />
-    <Compile Include="Models\OperationModel.cs" />
+    <Compile Include="Models\IClientModel.cs" />
+    <Compile Include="Models\DelayedOperationModel.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
