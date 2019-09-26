@@ -1,6 +1,8 @@
 ﻿using System.ServiceProcess;
 using Service;
 using Service.Actions;
+using Service.Clients;
+using Service.Notifications;
 using Service.Services;
 
 namespace ConcreteService
@@ -14,7 +16,9 @@ namespace ConcreteService
             InitializeComponent();
             
             var clientsRepository = new ClientsRepository();
-            var actionsHandler = new ServiceActionsHandler(clientsRepository);
+            var clientsNotifications = new ClientsNotificationFactory(clientsRepository);
+            var clientsManagement = new ClientsManagement(clientsRepository, clientsNotifications);
+            var actionsHandler = new ServiceActionsHandler(clientsManagement);
             
             _wcfServiceHost = new WcfServiceHost(new ServiceContract(actionsHandler));
         }

@@ -7,15 +7,15 @@ namespace Service
 {
     public class WcfServiceHost
     {
-        private ServiceHost _serviceHostInstance;
+        private ServiceHost _serviceHost;
         
-        private readonly NetNamedPipeBinding _serviceHostBinding;
+        private readonly NetNamedPipeBinding _servicePipeBinding;
 
         private readonly IServiceContract _serviceContract;
         
         public WcfServiceHost(IServiceContract serviceContract)
         {
-            _serviceHostBinding = new NetNamedPipeBinding
+            _servicePipeBinding = new NetNamedPipeBinding
             {
                 Security =
                 {
@@ -30,14 +30,14 @@ namespace Service
 
             _serviceContract = serviceContract;
 
-            _serviceHostInstance = _initalizeServiceHost();
+            _serviceHost = _createServiceHost();
         }
 
 
-        private ServiceHost _initalizeServiceHost()
+        private ServiceHost _createServiceHost()
         {
             var serviceHost = new ServiceHost(_serviceContract, new Uri("net.pipe://localhost"));
-            serviceHost.AddServiceEndpoint(typeof(IServiceContract), _serviceHostBinding, "WCFBasis");
+            serviceHost.AddServiceEndpoint(typeof(IServiceContract), _servicePipeBinding, "WCFBasis");
             serviceHost.Faulted += _onHostFailure;
             serviceHost.Opened += _onHostOpened;
             
@@ -46,18 +46,18 @@ namespace Service
         
         private void _closeServiceHost()
         {
-            if (_serviceHostInstance == null) return;
+            if (_serviceHost == null) return;
             
-            _serviceHostInstance.Abort();
-            _serviceHostInstance.Close();
-            _serviceHostInstance = null;
+            _serviceHost.Abort();
+            _serviceHost.Close();
+            _serviceHost = null;
         }
         
         private void _onHostFailure(object sender, EventArgs e)
         {
             _closeServiceHost();
 
-            _serviceHostInstance = _initalizeServiceHost();
+            _serviceHost = _createServiceHost();
         }
         
         private void _onHostOpened(object sender, EventArgs e)
@@ -67,7 +67,7 @@ namespace Service
         
         public void Open()
         {
-            _serviceHostInstance.Open();
+            _serviceHost.Open();
         }
         
         public void Close()

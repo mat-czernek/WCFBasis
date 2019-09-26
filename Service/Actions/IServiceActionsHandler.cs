@@ -1,4 +1,5 @@
 using Contracts.Models;
+using Service.Notifications;
 
 namespace Service.Actions
 {

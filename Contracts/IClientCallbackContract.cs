@@ -25,9 +25,9 @@ namespace Contracts
         void UpdateGeneralStatus(string text);
 
         [OperationContract(IsOneWay = true)]
-        void UpdateCurrentOperation(DelayedOperationModel delayedOperation);
+        void UpdateCurrentOperation(SampleOperationModel sampleOperation);
 
         [OperationContract(IsOneWay = true)]
-        void UpdateOperationsQueue(List<DelayedOperationModel> actions);
+        void UpdateOperationsQueue(List<SampleOperationModel> actions);
     }
 }

@@ -6,6 +6,8 @@ using System.Timers;
 using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
+using Service.Clients;
+using Service.Notifications;
 using Service.Services;
 
 namespace Service.Actions
@@ -16,11 +18,11 @@ namespace Service.Actions
 
         private readonly List<IServiceAction> _serviceActionsQueue = new List<IServiceAction>();
         
-        private readonly IClientsRepository _clientsRepository;
+        private readonly IClientsManagement _clientsManagement;
 
-        public ServiceActionsHandler(IClientsRepository clientsRepository)
+        public ServiceActionsHandler(IClientsManagement clientsManagement)
         {
-            _clientsRepository = clientsRepository;
+            _clientsManagement = clientsManagement;
             
             var serviceActionsQueueProcessingTimer = new Timer(1000);
             serviceActionsQueueProcessingTimer.Elapsed += _executeActionFromQueueOnTimerElapsed;
@@ -62,29 +64,29 @@ namespace Service.Actions
             {
                 case ActionType.SampleOperation:
                 {
-                    if (_clientsRepository.IsRegisteredClient(actionModel.ClientId))
-                        return new DelayedOperationAction(_clientsRepository);
+                    if (_clientsManagement.IsRegistered(actionModel.ClientId))
+                        return new SampleOperationAction(_clientsManagement);
                     
                     return new InvalidAction();
                 }
 
                 case ActionType.RegisterClient:
                 {
-                    return new RegisterClientAction(actionModel.ClientId, _clientsRepository);
+                    return new RegisterClientAction(actionModel.ClientId, _clientsManagement);
                 }
 
                 case ActionType.UnregisterClient:
                 {
-                    if (_clientsRepository.IsRegisteredClient(actionModel.ClientId))
-                        return new UnregisterClientAction(actionModel.ClientId, _clientsRepository);
+                    if (_clientsManagement.IsRegistered(actionModel.ClientId))
+                        return new UnregisterClientAction(actionModel.ClientId, _clientsManagement);
                     
                     return new InvalidAction();
                 }
 
                 case ActionType.UpdateChannel:
                 {
-                    if (_clientsRepository.IsRegisteredClient(actionModel.ClientId))
-                        return new UpdateChannelAction(actionModel.ClientId, _clientsRepository);
+                    if (_clientsManagement.IsRegistered(actionModel.ClientId))
+                        return new UpdateChannelAction(actionModel.ClientId, _clientsManagement);
                     
                     return new InvalidAction();
                 }

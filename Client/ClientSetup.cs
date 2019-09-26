@@ -14,47 +14,39 @@ namespace Client
     /// </summary>
     public class ClientSetup
     {
-        /// <summary>
-        /// Communication channel factory
-        /// </summary>
-        private DuplexChannelFactory<IServiceContract> _channelFactory;
+        private DuplexChannelFactory<IServiceContract> _duplexChannelFactory;
+        
+        private readonly NetNamedPipeBinding _clientPipeBinding;
 
-        /// <summary>
-        /// Named pipes configuration
-        /// </summary>
-        private readonly NetNamedPipeBinding _netNamedPipeBinding;
+        public IServiceContract ServiceCommunicationChannel => _createCommunicationChannel();
 
-        /// <summary>
-        /// Communication proxy with service
-        /// </summary>
-        public IServiceContract ProxyChannel => _createProxyChannel();
-
-        private readonly IClientCallbackContract _callbackImplementation;
+        private readonly IClientCallbackContract _clientCallbackContractImplementation;
         
         public bool IsRegistered { get; protected set; }
 
         private ServiceStatus _lastServiceStatus = ServiceStatus.Functional;
         
-        public Guid Id;
-
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public ClientSetup(IClientCallbackContract callbackImplementation)
+        public Guid ClientId;
+        
+        public ClientSetup(IClientCallbackContract clientCallbackContractImplementation)
         {
-            _callbackImplementation = callbackImplementation;
+            _clientCallbackContractImplementation = clientCallbackContractImplementation;
             
-            Id = Guid.NewGuid();
+            ClientId = Guid.NewGuid();
 
-            var updateChannelTimer = new Timer(1000);
-            updateChannelTimer.Elapsed += _onUpdateChannelTimerElapsed;
-            updateChannelTimer.Enabled = true;
-            updateChannelTimer.AutoReset = true;
-            updateChannelTimer.Start();
+            var updateCommunicationChannelTimer = new Timer(1000);
+            updateCommunicationChannelTimer.Elapsed += _updateCommunicationChannel;
+            updateCommunicationChannelTimer.Enabled = true;
+            updateCommunicationChannelTimer.AutoReset = true;
+            updateCommunicationChannelTimer.Start();
             
-            _netNamedPipeBinding = new NetNamedPipeBinding
+            _clientPipeBinding = new NetNamedPipeBinding
             {
-                Security = { Mode = NetNamedPipeSecurityMode.Transport, Transport = new NamedPipeTransportSecurity() {ProtectionLevel = ProtectionLevel.EncryptAndSign} },
+                Security =
+                {
+                    Mode = NetNamedPipeSecurityMode.Transport,
+                    Transport = new NamedPipeTransportSecurity() {ProtectionLevel = ProtectionLevel.EncryptAndSign}
+                },
                 MaxConnections = 10,
                 OpenTimeout = new TimeSpan(0, 0, 30),
                 ReceiveTimeout = new TimeSpan(0, 0, 5),
@@ -67,40 +59,40 @@ namespace Client
         {
             try
             {
-                ProxyChannel.ActionRequest(new ActionModel
-                    {ClientId = Id, Type = ActionType.RegisterClient, ExecuteImmediately = true});
+                ServiceCommunicationChannel.ActionRequest(new ActionModel
+                    { ClientId = ClientId, Type = ActionType.RegisterClient, ExecuteImmediately = true });
                 
                 IsRegistered = true;
 
                 _lastServiceStatus = ServiceStatus.Functional;
             }
-            catch (EndpointNotFoundException){}
+            catch (EndpointNotFoundException){IsRegistered = false;}
         }
 
         public void Unregister()
         {
             try
             {
-                ProxyChannel.ActionRequest(new ActionModel
-                    {ClientId = Id, Type = ActionType.UnregisterClient, ExecuteImmediately = true});
+                ServiceCommunicationChannel.ActionRequest(new ActionModel
+                    { ClientId = ClientId, Type = ActionType.UnregisterClient, ExecuteImmediately = true });
                 
                 IsRegistered = false;
             }
-            catch (EndpointNotFoundException){}
+            catch (EndpointNotFoundException){IsRegistered = false;}
         }
 
-        private void _onUpdateChannelTimerElapsed(object sender, ElapsedEventArgs e)
+        private void _updateCommunicationChannel(object sender, ElapsedEventArgs e)
         {
             try
             {
                 if(_lastServiceStatus == ServiceStatus.Functional)
                 {
-                    ProxyChannel.ActionRequest(new ActionModel
-                        {ClientId = Id, Type = ActionType.UpdateChannel, ExecuteImmediately = true});
+                    ServiceCommunicationChannel.ActionRequest(new ActionModel
+                        { ClientId = ClientId, Type = ActionType.UpdateChannel, ExecuteImmediately = true });
                 }
                 else
                 {
-                    this.Register();
+                    Register();
                 }
             }
             catch (EndpointNotFoundException)
@@ -110,54 +102,39 @@ namespace Client
             }
         }
         
-
-        /// <summary>
-        /// Method creates new channel for the current request
-        /// </summary>
-        /// <returns>Return new communication channel</returns>
-        private IServiceContract _createProxyChannel()
+        
+        private IServiceContract _createCommunicationChannel()
         {
-            if(_channelFactory == null)
-                _channelFactory = _createChannelFactory();
+            if(_duplexChannelFactory == null)
+                _duplexChannelFactory = _createDuplexChannelFactory();
 
-            if (_channelFactory.State == CommunicationState.Faulted)
+            if (_duplexChannelFactory.State == CommunicationState.Faulted)
             {
-                _cleanChannelFactory();
-                _channelFactory = _createChannelFactory();
+                _resetDuplexCommunicationChannel();
+                _duplexChannelFactory = _createDuplexChannelFactory();
             }
 
-            return _channelFactory.CreateChannel();
+            return _duplexChannelFactory.CreateChannel();
         }
-
-        /// <summary>
-        /// Method aborts all operations on channel factory and then closing it
-        /// </summary>
-        private void _cleanChannelFactory()
+        
+        private void _resetDuplexCommunicationChannel()
         {
-            if(_channelFactory == null) return;
+            if(_duplexChannelFactory == null) return;
             
-            _channelFactory.Abort();
-            _channelFactory.Close();
+            _duplexChannelFactory.Abort();
+            _duplexChannelFactory.Close();
         }
-
-        /// <summary>
-        /// Method raised by event when channel factory get faulted state. In that case we have to re-create the channel factory.
-        /// </summary>
-        /// <param name="sender">Event sender</param>
-        /// <param name="e">Event arguments</param>
+        
         private void _onChannelFactoryFailure(object sender, EventArgs e)
         {
-            _cleanChannelFactory();
+            _resetDuplexCommunicationChannel();
             
-            _channelFactory = _createChannelFactory();
+            _duplexChannelFactory = _createDuplexChannelFactory();
         }
-
-        /// <summary>
-        /// Methods create the channel factory. Channel factory is used to create communication channels for each request.
-        /// </summary>
-        private DuplexChannelFactory<IServiceContract> _createChannelFactory()
+        
+        private DuplexChannelFactory<IServiceContract> _createDuplexChannelFactory()
         {
-            var channelFactory = new DuplexChannelFactory<IServiceContract>(_callbackImplementation, _netNamedPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
+            var channelFactory = new DuplexChannelFactory<IServiceContract>(_clientCallbackContractImplementation, _clientPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 
             return channelFactory;

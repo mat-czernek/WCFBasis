@@ -4,7 +4,7 @@ using Contracts.Enums;
 namespace Contracts.Models
 {
     [DataContract(Namespace = "WCFBasis")]
-    public class DelayedOperationModel
+    public class SampleOperationModel
     {
         [DataMember]
         public string Name { get; set; }

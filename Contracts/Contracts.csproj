@@ -51,7 +51,7 @@
     <Compile Include="IServiceContract.cs" />
     <Compile Include="Models\ActionModel.cs" />
     <Compile Include="Models\IClientModel.cs" />
-    <Compile Include="Models\DelayedOperationModel.cs" />
+    <Compile Include="Models\SampleOperationModel.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

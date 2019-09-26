@@ -1,6 +1,10 @@
 ﻿using System;
+using Autofac;
+using Contracts;
 using Service;
 using Service.Actions;
+using Service.Clients;
+using Service.Notifications;
 using Service.Services;
 
 namespace ConcreteServiceConsole
@@ -9,16 +13,26 @@ namespace ConcreteServiceConsole
     {
         public static void Main(string[] args)
         {
-            var clientsRepository = new ClientsRepository();
-            var actionsHandler = new ServiceActionsHandler(clientsRepository);
+            var containerBuilder = new ContainerBuilder();
             
-            var host = new WcfServiceHost(new ServiceContract(actionsHandler));
+            containerBuilder.RegisterType<ClientsRepository>().As<IClientsRepository>().SingleInstance();
+            containerBuilder.RegisterType<ClientsNotificationFactory>().As<IClientsNotificationFactory>().SingleInstance();
+            containerBuilder.RegisterType<ClientsManagement>().As<IClientsManagement>().SingleInstance();
+            containerBuilder.RegisterType<ServiceActionsHandler>().As<IServiceActionsHandler>().SingleInstance();
+            containerBuilder.RegisterType<ServiceContract>().As<IServiceContract>().SingleInstance();
             
-            host.Open();
+            var container = containerBuilder.Build();
+            
+            using(var scope = container.BeginLifetimeScope())
+            {
+                var host = new WcfServiceHost(scope.Resolve<IServiceContract>());
 
-            Console.ReadKey();
-            
-            host.Close();
+                host.Open();
+
+                Console.ReadKey();
+
+                host.Close();
+            }
         }
     }
 }

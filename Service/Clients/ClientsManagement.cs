@@ -3,30 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Contracts.Models;
+using Service.Notifications;
 
-namespace Service.Services
+namespace Service.Clients
 {
-    public class ClientsRepository : IClientsRepository
+    public class ClientsManagement : IClientsManagement
     {
         private static readonly object ThreadSyncObject = new object();
+        
+        private readonly IClientsRepository _clientsRepository;
+        
+        public IClientsNotificationFactory NotificationFactory { get; }
 
-        public List<IClientModel> RegisteredClients { get; private set; }
-
-        public bool IsRegisteredClient(Guid clientId)
+        public bool IsRegistered(Guid clientId)
         {
             lock (ThreadSyncObject)
             {
-                var concreteClient = RegisteredClients.SingleOrDefault(client => client.Id == clientId);
+                var concreteClient = _clientsRepository.Clients.SingleOrDefault(client => client.Id == clientId);
                 
                 return concreteClient != null;
             }
             
         }
         
-        public ClientsRepository()
+        public ClientsManagement(IClientsRepository clientsRepository, IClientsNotificationFactory clientsNotificationFactory)
         {
-            RegisteredClients = new List<IClientModel>();
-            
+            _clientsRepository = clientsRepository;
+
+            NotificationFactory = clientsNotificationFactory;
+
             var monitorInactiveClients = new Timer(10000);
             monitorInactiveClients.Elapsed += _removeInactiveClients;
             monitorInactiveClients.Enabled = true;
@@ -34,8 +39,7 @@ namespace Service.Services
             monitorInactiveClients.Start();
         }
 
-
-
+        
         public void Insert(IClientModel model)
         {
             if(model == null) return;
@@ -47,7 +51,7 @@ namespace Service.Services
 
             lock (ThreadSyncObject)
             {
-                RegisteredClients.Add(model);
+                _clientsRepository.Clients.Add(model);
             }
         }
 
@@ -58,11 +62,11 @@ namespace Service.Services
             
             lock (ThreadSyncObject)
             {
-                var clientToDelete = RegisteredClients.SingleOrDefault(client => client.Id == id);
+                var clientToDelete = _clientsRepository.Clients.SingleOrDefault(client => client.Id == id);
                 
                 if (clientToDelete == null) return;
                 
-                RegisteredClients.Remove(clientToDelete);
+                _clientsRepository.Clients.Remove(clientToDelete);
             }
         }
 
@@ -75,7 +79,7 @@ namespace Service.Services
             
             lock (ThreadSyncObject)
             {
-                var clientToUpdate = RegisteredClients.SingleOrDefault(client => client.Id == model.Id);
+                var clientToUpdate = _clientsRepository.Clients.SingleOrDefault(client => client.Id == model.Id);
                 
                 if(clientToUpdate == null) return;
 
@@ -89,10 +93,15 @@ namespace Service.Services
         {
             lock (ThreadSyncObject)
             {
-                var inactiveClients = RegisteredClients
+                var inactiveClients = _clientsRepository.Clients
                     .FindAll(client => (DateTime.Now - client.LastActivityTime).Seconds >= 15);
+
+                foreach (var inactiveClient in inactiveClients)
+                {
+                    Console.WriteLine($"Inactive client: {inactiveClient.Id}");
+                }
                 
-                RegisteredClients = RegisteredClients.Except(inactiveClients).ToList();
+                _clientsRepository.Clients = _clientsRepository.Clients.Except(inactiveClients).ToList();
             }
         }
     }

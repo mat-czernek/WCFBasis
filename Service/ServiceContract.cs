@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Timers;
 using Contracts;
 using Contracts.Models;
 using Service.Actions;
 using Timer = System.Timers.Timer;
 
-namespace Service.Services
+namespace Service
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false, IncludeExceptionDetailInFaults = true, AutomaticSessionShutdown = false)]
     public class ServiceContract : IServiceContract

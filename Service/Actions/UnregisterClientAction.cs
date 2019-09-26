@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Contracts.Enums;
 using Contracts.Models;
+using Service.Clients;
 using Service.Services;
 
 namespace Service.Actions
@@ -14,19 +15,19 @@ namespace Service.Actions
 
         private readonly Guid _clientId;
         
-        private readonly IClientsRepository _clientsRepository;
+        private readonly IClientsManagement _clientsManagement;
         
-        public UnregisterClientAction(Guid clientId, IClientsRepository clientsRepository)
+        public UnregisterClientAction(Guid clientId, IClientsManagement clientsManagement)
         {
             _clientId = clientId;
-            _clientsRepository = clientsRepository;
+            _clientsManagement = clientsManagement;
         }
         
         public void Execute()
         {
             if (_clientId == Guid.Empty) return;
 
-            _clientsRepository.Delete(_clientId);
+            _clientsManagement.Delete(_clientId);
         }
     }
 }

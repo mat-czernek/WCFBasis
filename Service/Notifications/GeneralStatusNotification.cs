@@ -1,17 +1,18 @@
 using System;
 using System.Linq;
+using Service.Clients;
 using Service.Services;
 
 
 namespace Service.Notifications
 {
-    public class GeneralNotification : INotification
+    public class GeneralStatusNotification : INotification
     {
         private readonly IClientsRepository _clientsRepository;
 
         private readonly string _message;
 
-        public GeneralNotification(IClientsRepository clientsRepository, string message)
+        public GeneralStatusNotification(IClientsRepository clientsRepository, string message)
         {
             _message = message;
             _clientsRepository = clientsRepository;
@@ -19,14 +20,14 @@ namespace Service.Notifications
         
         public void NotifyById(Guid id)
         {
-            var concreteClient = _clientsRepository.RegisteredClients.SingleOrDefault(client => client.Id == id);
+            var concreteClient = _clientsRepository.Clients.SingleOrDefault(client => client.Id == id);
             
             concreteClient?.CallbackChannel.UpdateGeneralStatus(_message);
         }
 
         public void NotifyAll()
         {
-            _clientsRepository.RegisteredClients.ForEach(clients => clients.CallbackChannel.UpdateGeneralStatus(_message));
+            _clientsRepository.Clients.ForEach(clients => clients.CallbackChannel.UpdateGeneralStatus(_message));
         }
     }
 }

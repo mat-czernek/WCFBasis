@@ -26,7 +26,7 @@ namespace ConcreteClient
             _clientCallbackContract.ServiceActionsQueue += _onServiceActionQueue;
             _clientCallbackContract.ServiceCurrentAction += _onServiceCurrentAction;
 
-            tbClientName.Text = _clientSetup.Id.ToString();
+            tbClientName.Text = _clientSetup.ClientId.ToString();
         }
 
         private void _onSimpleMessageFromService(string text)
@@ -34,12 +34,12 @@ namespace ConcreteClient
             rtbMessages.Text = text;
         }
 
-        private void _onServiceCurrentAction(DelayedOperationModel delayedOperation)
+        private void _onServiceCurrentAction(SampleOperationModel sampleOperation)
         {
-            rtbMessages.Text = $"Currently processed action name: {delayedOperation.Name}";
+            rtbMessages.Text = $"Currently processed action name: {sampleOperation.Name}";
         }
 
-        private void _onServiceActionQueue(List<DelayedOperationModel> actions)
+        private void _onServiceActionQueue(List<SampleOperationModel> actions)
         {
             lbActionsInQueue.Items.Clear();
 
@@ -63,15 +63,15 @@ namespace ConcreteClient
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _clientSetup.Unregister();
+            //_clientSetup.Unregister();
         }
 
         private void btnTakeActions_Click(object sender, EventArgs e)
         {
             try
             {
-                _clientSetup.ProxyChannel.ActionRequest(new ActionModel
-                    {ClientId = _clientSetup.Id, Type = ActionType.SampleOperation, ExecuteImmediately = false});
+                _clientSetup.ServiceCommunicationChannel.ActionRequest(new ActionModel
+                    {ClientId = _clientSetup.ClientId, Type = ActionType.SampleOperation, ExecuteImmediately = false});
             }
             catch (EndpointNotFoundException)
             {
