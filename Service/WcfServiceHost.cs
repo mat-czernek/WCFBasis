@@ -39,7 +39,6 @@ namespace Service
             var serviceHost = new ServiceHost(_serviceContract, new Uri("net.pipe://localhost"));
             serviceHost.AddServiceEndpoint(typeof(IServiceContract), _servicePipeBinding, "WCFBasis");
             serviceHost.Faulted += _onHostFailure;
-            serviceHost.Opened += _onHostOpened;
             
             return serviceHost;
         }
@@ -59,12 +58,7 @@ namespace Service
 
             _serviceHost = _createServiceHost();
         }
-        
-        private void _onHostOpened(object sender, EventArgs e)
-        {
-            
-        }
-        
+
         public void Open()
         {
             _serviceHost.Open();
