@@ -22,24 +22,24 @@ namespace ConcreteClient
 
             _clientSetup = new ClientSetup(_clientCallbackContract);
 
-            _clientCallbackContract.ServiceSimpleMessage += _onSimpleMessageFromService;
-            _clientCallbackContract.ServiceActionsQueue += _onServiceActionQueue;
-            _clientCallbackContract.ServiceCurrentAction += _onServiceCurrentAction;
+            _clientCallbackContract.GeneralStatusChanged += _onGeneralStatusChanged;
+            _clientCallbackContract.OperationsQueueChanged += _onOperationQueueChanged;
+            _clientCallbackContract.CurrentActionChanged += _onCurrentActionChanged;
 
             tbClientName.Text = _clientSetup.ClientId.ToString();
         }
 
-        private void _onSimpleMessageFromService(string text)
+        private void _onGeneralStatusChanged(string text)
         {
             rtbMessages.Text = text;
         }
 
-        private void _onServiceCurrentAction(SampleOperationModel sampleOperation)
+        private void _onCurrentActionChanged(SampleOperationModel sampleOperation)
         {
             rtbMessages.Text = $"Currently processed action name: {sampleOperation.Name}";
         }
 
-        private void _onServiceActionQueue(List<SampleOperationModel> actions)
+        private void _onOperationQueueChanged(List<SampleOperationModel> actions)
         {
             lbActionsInQueue.Items.Clear();
 

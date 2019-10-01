@@ -8,26 +8,26 @@ namespace Client
 {
     public class ClientCallbackContract : IClientCallbackContract
     {
-        public ServiceSimpleMessageDelegate ServiceSimpleMessage { get; set; }
+        public ServiceSimpleMessageDelegate GeneralStatusChanged { get; set; }
         
-        public ServiceActionsQueueDelegate ServiceActionsQueue { get; set; }
+        public ServiceActionsQueueDelegate OperationsQueueChanged { get; set; }
         
-        public ServiceCurrentActionDelegate ServiceCurrentAction { get; set; }
+        public ServiceCurrentActionDelegate CurrentActionChanged { get; set; }
 
 
         public void UpdateGeneralStatus(string text)
         {
-            ServiceSimpleMessage?.Invoke(text);
+            GeneralStatusChanged?.Invoke(text);
         }
 
         public void UpdateCurrentOperation(SampleOperationModel sampleOperation)
         {
-            ServiceCurrentAction?.Invoke(sampleOperation);
+            CurrentActionChanged?.Invoke(sampleOperation);
         }
 
         public void UpdateOperationsQueue(List<SampleOperationModel> actions)
         {
-            ServiceActionsQueue?.Invoke(actions);
+            OperationsQueueChanged?.Invoke(actions);
         }
     }
 }

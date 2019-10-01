@@ -8,11 +8,11 @@ namespace Contracts
     [ServiceContract(SessionMode = SessionMode.Required)]
     public interface IClientCallbackContract
     {
-        ServiceSimpleMessageDelegate ServiceSimpleMessage { get; set; }
+        ServiceSimpleMessageDelegate GeneralStatusChanged { get; set; }
         
-        ServiceActionsQueueDelegate ServiceActionsQueue { get; set; }
+        ServiceActionsQueueDelegate OperationsQueueChanged { get; set; }
         
-        ServiceCurrentActionDelegate ServiceCurrentAction { get; set; }
+        ServiceCurrentActionDelegate CurrentActionChanged { get; set; }
         
         [OperationContract(IsOneWay = true)]
         void UpdateGeneralStatus(string text);
