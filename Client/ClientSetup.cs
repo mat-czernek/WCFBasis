@@ -134,7 +134,8 @@ namespace Client
         
         private DuplexChannelFactory<IServiceContract> _createDuplexChannelFactory()
         {
-            var channelFactory = new DuplexChannelFactory<IServiceContract>(_clientCallbackContractImplementation, _clientPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
+            var channelFactory = new DuplexChannelFactory<IServiceContract>(_clientCallbackContractImplementation,
+                _clientPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 
             return channelFactory;

@@ -14,11 +14,11 @@ namespace Service.Services
             
             OperationsList = new List<SampleOperationModel>
             {
-                new SampleOperationModel {Delay = random.Next(20000, 30000), Name = "Operation no.1"},
-                new SampleOperationModel {Delay = random.Next(20000, 30000), Name = "Operation no.2"},
-                new SampleOperationModel {Delay = random.Next(20000, 30000), Name = "Operation no.3"},
-                new SampleOperationModel {Delay = random.Next(20000, 30000), Name = "Operation no.4"},
-                new SampleOperationModel {Delay = random.Next(20000, 30000), Name = "Operation no.5"}
+                new SampleOperationModel {Delay = random.Next(2000, 3000), Name = "Operation no.1"},
+                new SampleOperationModel {Delay = random.Next(2000, 3000), Name = "Operation no.2"},
+                new SampleOperationModel {Delay = random.Next(2000, 3000), Name = "Operation no.3"},
+                new SampleOperationModel {Delay = random.Next(2000, 3000), Name = "Operation no.4"},
+                new SampleOperationModel {Delay = random.Next(2000, 3000), Name = "Operation no.5"}
             };
         }
     }

@@ -51,6 +51,12 @@ namespace Service
             _serviceHost.Close();
             _serviceHost = null;
         }
+
+
+        private void _openServiceHost()
+        {
+            _serviceHost?.Open();
+        }
         
         private void _onHostFailure(object sender, EventArgs e)
         {
