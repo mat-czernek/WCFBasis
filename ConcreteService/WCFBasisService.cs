@@ -16,9 +16,9 @@ namespace ConcreteService
             InitializeComponent();
             
             var clientsRepository = new ClientsRepository();
-            var clientsNotifications = new ClientsNotificationFactory(clientsRepository);
-            var clientsManagement = new ClientsManagement(clientsRepository, clientsNotifications);
-            var actionsHandler = new ServiceActionsHandler(clientsManagement);
+            var clientsNotifications = new NotificationFactory(clientsRepository);
+            var clientsManagement = new ClientsManagement(clientsRepository);
+            var actionsHandler = new ServiceActionsHandler(clientsManagement, clientsNotifications);
             
             _wcfServiceHost = new WcfServiceHost(new ServiceContract(actionsHandler));
         }

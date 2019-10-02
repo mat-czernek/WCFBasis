@@ -16,7 +16,7 @@ namespace ConcreteServiceConsole
             var containerBuilder = new ContainerBuilder();
             
             containerBuilder.RegisterType<ClientsRepository>().As<IClientsRepository>().SingleInstance();
-            containerBuilder.RegisterType<ClientsNotificationFactory>().As<IClientsNotificationFactory>().SingleInstance();
+            containerBuilder.RegisterType<NotificationFactory>().As<INotificationFactory>().SingleInstance();
             containerBuilder.RegisterType<ClientsManagement>().As<IClientsManagement>().SingleInstance();
             containerBuilder.RegisterType<ServiceActionsHandler>().As<IServiceActionsHandler>().SingleInstance();
             containerBuilder.RegisterType<ServiceContract>().As<IServiceContract>().SingleInstance();

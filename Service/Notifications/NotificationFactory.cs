@@ -5,11 +5,11 @@ using Service.Services;
 
 namespace Service.Notifications
 {
-    public class ClientsNotificationFactory : IClientsNotificationFactory
+    public class NotificationFactory : INotificationFactory
     {
         private readonly IClientsRepository _clientsRepository;
 
-        public ClientsNotificationFactory(IClientsRepository clientsRepository)
+        public NotificationFactory(IClientsRepository clientsRepository)
         {
             _clientsRepository = clientsRepository;
         }

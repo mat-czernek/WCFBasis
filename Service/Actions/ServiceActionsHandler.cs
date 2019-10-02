@@ -20,9 +20,12 @@ namespace Service.Actions
         
         private readonly IClientsManagement _clientsManagement;
 
-        public ServiceActionsHandler(IClientsManagement clientsManagement)
+        private readonly INotificationFactory _notificationFactory;
+
+        public ServiceActionsHandler(IClientsManagement clientsManagement, INotificationFactory notificationFactory)
         {
             _clientsManagement = clientsManagement;
+            _notificationFactory = notificationFactory;
             
             var serviceActionsQueueProcessingTimer = new Timer(1000);
             serviceActionsQueueProcessingTimer.Elapsed += _executeActionFromQueueOnTimerElapsed;
@@ -65,14 +68,14 @@ namespace Service.Actions
                 case ActionType.SampleOperation:
                 {
                     if (_clientsManagement.IsRegistered(actionModel.ClientId))
-                        return new SampleOperationAction(_clientsManagement);
+                        return new SampleOperationAction(_clientsManagement, _notificationFactory);
                     
                     return new InvalidAction();
                 }
 
                 case ActionType.RegisterClient:
                 {
-                    return new RegisterClientAction(actionModel.ClientId, _clientsManagement);
+                    return new RegisterClientAction(actionModel.ClientId, _clientsManagement, _notificationFactory);
                 }
 
                 case ActionType.UnregisterClient:

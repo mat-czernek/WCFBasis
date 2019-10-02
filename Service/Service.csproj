@@ -51,10 +51,10 @@
     <Compile Include="Clients\ClientsRepository.cs" />
     <Compile Include="Clients\IClientsManagement.cs" />
     <Compile Include="Clients\IClientsRepository.cs" />
-    <Compile Include="Notifications\ClientsNotificationFactory.cs" />
+    <Compile Include="Notifications\NotificationFactory.cs" />
     <Compile Include="Notifications\CurrentOperationNotification.cs" />
     <Compile Include="Notifications\GeneralStatusNotification.cs" />
-    <Compile Include="Notifications\IClientsNotificationFactory.cs" />
+    <Compile Include="Notifications\INotificationFactory.cs" />
     <Compile Include="Notifications\INotification.cs" />
     <Compile Include="Notifications\OperationsListNotification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

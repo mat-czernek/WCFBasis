@@ -40,14 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Delegates\ServiceActionsQueueDelegate.cs" />
-    <Compile Include="Delegates\ServiceCurrentActionDelegate.cs" />
-    <Compile Include="Delegates\ServiceSimpleMessageDelegate.cs" />
+    <Compile Include="Delegates\OperationsQueueChangedDelegate.cs" />
+    <Compile Include="Delegates\CurrentOperationChangedDelegate.cs" />
+    <Compile Include="Delegates\GeneralStatusChangedDelegate.cs" />
     <Compile Include="Enums\ActionStatus.cs" />
     <Compile Include="Enums\ActionType.cs" />
     <Compile Include="Enums\OperationStatus.cs" />
     <Compile Include="Enums\ServiceStatus.cs" />
-    <Compile Include="IClientCallbackContract.cs" />
+    <Compile Include="ICallbackContract.cs" />
     <Compile Include="IServiceContract.cs" />
     <Compile Include="Models\ActionModel.cs" />
     <Compile Include="Models\IClientModel.cs" />

@@ -9,14 +9,10 @@ namespace Service.Clients
     {
         bool IsRegistered(Guid clientId);
         
-        //List<IClientModel> RegisteredClients { get; }
-
         void Insert(IClientModel model);
 
         void Delete(Guid id);
 
         void Update(IClientModel model);
-
-        IClientsNotificationFactory NotificationFactory { get; }
     }
 }

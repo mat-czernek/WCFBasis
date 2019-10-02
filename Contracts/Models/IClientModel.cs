@@ -7,7 +7,7 @@ namespace Contracts.Models
     {
         Guid Id { get; set; }
         
-        IClientCallbackContract CallbackChannel { get; set; }
+        ICallbackContract CallbackChannel { get; set; }
         
         DateTime RegistrationTime { get; set; }
 

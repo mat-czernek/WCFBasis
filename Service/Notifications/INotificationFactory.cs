@@ -3,7 +3,7 @@ using Contracts.Models;
 
 namespace Service.Notifications
 {
-    public interface IClientsNotificationFactory
+    public interface INotificationFactory
     {
         INotification GeneralStatus(string message);
 

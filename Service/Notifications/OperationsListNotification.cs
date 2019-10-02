@@ -22,12 +22,12 @@ namespace Service.Notifications
         {
             var concreteClient = _clientsRepository.Clients.SingleOrDefault(client => client.Id == id);
             
-            concreteClient?.CallbackChannel.UpdateOperationsQueue(_operations);
+            concreteClient?.CallbackChannel.NotifyOperationQueueChanged(_operations);
         }
 
         public void NotifyAll()
         {
-            _clientsRepository.Clients.ForEach(clients => clients.CallbackChannel.UpdateOperationsQueue(_operations));
+            _clientsRepository.Clients.ForEach(clients => clients.CallbackChannel.NotifyOperationQueueChanged(_operations));
         }
     }
 }
