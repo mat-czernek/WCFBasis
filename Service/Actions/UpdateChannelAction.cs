@@ -28,7 +28,7 @@ namespace Service.Actions
             var clientToUpdate = new ClientModel()
             {
                 Id = _clientId,
-                CallbackChannel = OperationContext.Current.GetCallbackChannel<IClientCallbackContract>(),
+                CallbackChannel = OperationContext.Current.GetCallbackChannel<ICallbackContract>(),
                 LastActivityTime = DateTime.Now
             };
             

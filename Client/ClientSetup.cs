@@ -20,7 +20,7 @@ namespace Client
 
         public IServiceContract ServiceCommunicationChannel => _createCommunicationChannel();
 
-        private readonly IClientCallbackContract _clientCallbackContractImplementation;
+        private readonly ICallbackContract _callbackContractImplementation;
         
         public bool IsRegistered { get; protected set; }
 
@@ -28,9 +28,9 @@ namespace Client
         
         public Guid ClientId;
         
-        public ClientSetup(IClientCallbackContract clientCallbackContractImplementation)
+        public ClientSetup(ICallbackContract callbackContractImplementation)
         {
-            _clientCallbackContractImplementation = clientCallbackContractImplementation;
+            _callbackContractImplementation = callbackContractImplementation;
             
             ClientId = Guid.NewGuid();
 
@@ -134,7 +134,7 @@ namespace Client
         
         private DuplexChannelFactory<IServiceContract> _createDuplexChannelFactory()
         {
-            var channelFactory = new DuplexChannelFactory<IServiceContract>(_clientCallbackContractImplementation,
+            var channelFactory = new DuplexChannelFactory<IServiceContract>(_callbackContractImplementation,
                 _clientPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 

@@ -10,7 +10,7 @@ namespace Contracts.Models
         public Guid Id { get; set; }
 
         [DataMember]
-        public IClientCallbackContract CallbackChannel { get; set; }
+        public ICallbackContract CallbackChannel { get; set; }
 
         [DataMember]
         public DateTime RegistrationTime { get; set; }

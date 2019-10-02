@@ -13,18 +13,18 @@ namespace ConcreteClient
     {
         private readonly ClientSetup _clientSetup;
 
-        private readonly IClientCallbackContract _clientCallbackContract = new ClientCallbackContract();
+        private readonly ICallbackContract _callbackContract = new CallbackContract();
         
         
         public Form1()
         {
             InitializeComponent();
 
-            _clientSetup = new ClientSetup(_clientCallbackContract);
+            _clientSetup = new ClientSetup(_callbackContract);
 
-            _clientCallbackContract.GeneralStatusChanged += _onGeneralStatusChanged;
-            _clientCallbackContract.OperationsQueueChanged += _onOperationQueueChanged;
-            _clientCallbackContract.CurrentActionChanged += _onCurrentActionChanged;
+            _callbackContract.GeneralStatusChanged += _onGeneralStatusChanged;
+            _callbackContract.OperationsQueueChanged += _onOperationQueueChanged;
+            _callbackContract.CurrentOperationChanged += _onCurrentActionChanged;
 
             tbClientName.Text = _clientSetup.ClientId.ToString();
         }
@@ -36,7 +36,7 @@ namespace ConcreteClient
 
         private void _onCurrentActionChanged(SampleOperationModel sampleOperation)
         {
-            rtbMessages.Text = $"Currently processed action name: {sampleOperation.Name}";
+            rtbMessages.Text = $@"Currently processed action name: {sampleOperation.Name}";
         }
 
         private void _onOperationQueueChanged(List<SampleOperationModel> actions)

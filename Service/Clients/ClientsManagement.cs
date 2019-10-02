@@ -13,8 +13,6 @@ namespace Service.Clients
         
         private readonly IClientsRepository _clientsRepository;
         
-        public IClientsNotificationFactory NotificationFactory { get; }
-
         public bool IsRegistered(Guid clientId)
         {
             lock (ThreadSyncObject)
@@ -26,12 +24,10 @@ namespace Service.Clients
             
         }
         
-        public ClientsManagement(IClientsRepository clientsRepository, IClientsNotificationFactory clientsNotificationFactory)
+        public ClientsManagement(IClientsRepository clientsRepository)
         {
             _clientsRepository = clientsRepository;
-
-            NotificationFactory = clientsNotificationFactory;
-
+            
             var monitorInactiveClients = new Timer(10000);
             monitorInactiveClients.Elapsed += _removeInactiveClients;
             monitorInactiveClients.Enabled = true;
