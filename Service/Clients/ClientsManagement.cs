@@ -12,6 +12,8 @@ namespace Service.Clients
         private static readonly object ThreadSyncObject = new object();
         
         private readonly IClientsRepository _clientsRepository;
+
+        private readonly Timer _monitorInactiveClients;
         
         public bool IsRegistered(Guid clientId)
         {
@@ -28,11 +30,11 @@ namespace Service.Clients
         {
             _clientsRepository = clientsRepository;
             
-            var monitorInactiveClients = new Timer(10000);
-            monitorInactiveClients.Elapsed += _removeInactiveClients;
-            monitorInactiveClients.Enabled = true;
-            monitorInactiveClients.AutoReset = true;
-            monitorInactiveClients.Start();
+            _monitorInactiveClients = new Timer(10000);
+            _monitorInactiveClients.Elapsed += _removeInactiveClients;
+            _monitorInactiveClients.Enabled = true;
+            _monitorInactiveClients.AutoReset = false;
+            _monitorInactiveClients.Start();
         }
 
         
@@ -89,15 +91,27 @@ namespace Service.Clients
         {
             lock (ThreadSyncObject)
             {
-                var inactiveClients = _clientsRepository.Clients
-                    .FindAll(client => (DateTime.Now - client.LastActivityTime).Seconds >= 15);
 
-                foreach (var inactiveClient in inactiveClients)
+                try
                 {
-                    Console.WriteLine($"Inactive client: {inactiveClient.Id}");
+                    var inactiveClients = _clientsRepository.Clients
+                        .FindAll(client => (DateTime.Now - client.LastActivityTime).Seconds >= 15);
+
+                    foreach (var inactiveClient in inactiveClients)
+                    {
+                        Console.WriteLine($"Inactive client: {inactiveClient.Id}");
+                    }
+
+                    _clientsRepository.Clients = _clientsRepository.Clients.Except(inactiveClients).ToList();
                 }
-                
-                _clientsRepository.Clients = _clientsRepository.Clients.Except(inactiveClients).ToList();
+                catch
+                {
+                    // ignore
+                }
+                finally
+                {
+                    _monitorInactiveClients.Start();
+                }
             }
         }
     }

@@ -20,6 +20,8 @@ namespace Client
 
         public IServiceContract ServiceCommunicationChannel => _createCommunicationChannel();
 
+        private IServiceContract _serviceCommunicationChannel;
+
         private readonly ICallbackContract _callbackContractImplementation;
         
         public bool IsRegistered { get; protected set; }
@@ -27,6 +29,8 @@ namespace Client
         private ServiceStatus _lastServiceStatus = ServiceStatus.Functional;
         
         public Guid ClientId;
+
+        private readonly Timer _updateCommunicationChannelTimer;
         
         public ClientSetup(ICallbackContract callbackContractImplementation)
         {
@@ -34,11 +38,11 @@ namespace Client
             
             ClientId = Guid.NewGuid();
 
-            var updateCommunicationChannelTimer = new Timer(1000);
-            updateCommunicationChannelTimer.Elapsed += _updateCommunicationChannel;
-            updateCommunicationChannelTimer.Enabled = true;
-            updateCommunicationChannelTimer.AutoReset = true;
-            updateCommunicationChannelTimer.Start();
+            _updateCommunicationChannelTimer = new Timer(1000);
+            _updateCommunicationChannelTimer.Elapsed += _updateCommunicationChannel;
+            _updateCommunicationChannelTimer.Enabled = true;
+            _updateCommunicationChannelTimer.AutoReset = false;
+            _updateCommunicationChannelTimer.Start();
             
             _clientPipeBinding = new NetNamedPipeBinding
             {
@@ -85,10 +89,10 @@ namespace Client
         {
             try
             {
-                if(_lastServiceStatus == ServiceStatus.Functional)
+                if (_lastServiceStatus == ServiceStatus.Functional)
                 {
                     ServiceCommunicationChannel.ActionRequest(new ActionModel
-                        { ClientId = ClientId, Type = ActionType.UpdateChannel, ExecuteImmediately = true });
+                        {ClientId = ClientId, Type = ActionType.UpdateChannel, ExecuteImmediately = true});
                 }
                 else
                 {
@@ -100,21 +104,34 @@ namespace Client
                 IsRegistered = false;
                 _lastServiceStatus = ServiceStatus.Faulted;
             }
+            finally
+            {
+                _updateCommunicationChannelTimer.Start();
+            }
         }
         
         
         private IServiceContract _createCommunicationChannel()
         {
             if(_duplexChannelFactory == null)
-                _duplexChannelFactory = _createDuplexChannelFactory();
+                _createDuplexChannelFactory();
 
             if (_duplexChannelFactory.State == CommunicationState.Faulted)
             {
                 _resetDuplexCommunicationChannel();
-                _duplexChannelFactory = _createDuplexChannelFactory();
+                _createDuplexChannelFactory();
+            }
+            
+            if ((_serviceCommunicationChannel as ICommunicationObject).State == CommunicationState.Faulted ||
+                (_serviceCommunicationChannel as ICommunicationObject).State == CommunicationState.Closed)
+            {
+                ((ICommunicationObject)_serviceCommunicationChannel).Abort();
+                ((ICommunicationObject)_serviceCommunicationChannel).Close();
+                _serviceCommunicationChannel = _duplexChannelFactory.CreateChannel();
+                return _serviceCommunicationChannel;
             }
 
-            return _duplexChannelFactory.CreateChannel();
+            return _serviceCommunicationChannel;
         }
         
         private void _resetDuplexCommunicationChannel()
@@ -129,16 +146,18 @@ namespace Client
         {
             _resetDuplexCommunicationChannel();
             
-            _duplexChannelFactory = _createDuplexChannelFactory();
+            _createDuplexChannelFactory();
         }
         
-        private DuplexChannelFactory<IServiceContract> _createDuplexChannelFactory()
+        private void _createDuplexChannelFactory()
         {
             var channelFactory = new DuplexChannelFactory<IServiceContract>(_callbackContractImplementation,
                 _clientPipeBinding, new EndpointAddress("net.pipe://localhost/WCFBasis"));
             channelFactory.Faulted += _onChannelFactoryFailure;
 
-            return channelFactory;
+            _serviceCommunicationChannel = channelFactory.CreateChannel();
+
+            _duplexChannelFactory = channelFactory;
         }
     }
 }
